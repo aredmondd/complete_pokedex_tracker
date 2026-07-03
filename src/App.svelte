@@ -7,6 +7,8 @@
   const POCKETS_PER_SPREAD = POCKETS_PER_PAGE * PAGES_PER_SPREAD;
   const TOTAL_SPREADS = 1 + Math.ceil((TOTAL_POCKETS - POCKETS_PER_PAGE) / POCKETS_PER_SPREAD);
   const STORAGE_KEY = "complete-pokedex.collection.v1";
+  // change this to be "/sprites/pokemon/shiny/" to use shiny versions for your art!
+  const SPRITE_DIRECTORY = "/sprites/pokemon/"
 
   const pokemonById = new Map(pokedex.pokemon.map((pokemon) => [pokemon.id, pokemon]));
 
@@ -417,7 +419,7 @@
               </div>
 
               <div class="flex flex-1 items-center justify-center">
-                <img src={`/sprites/sprites/pokemon/${slot.pokemon.id}.png`} class={isCollected(slot) ? "grayscale blur-[1px]" : ""}/>
+                <img src={`${SPRITE_DIRECTORY}${slot.pokemon.id}.png`} class={isCollected(slot) ? "grayscale blur-[1px]" : ""}/>
               </div>
 
               <!-- <div>
