@@ -259,7 +259,7 @@
     }
 
     if (isHighlighted(slot)) {
-      return "bg-yellow-200 shadow-sm dark:bg-yellow-900/50 dark:text-yellow-50";
+      return "bg-yellow-300/50 shadow-sm";
     }
 
     if (isCollected(slot)) {
