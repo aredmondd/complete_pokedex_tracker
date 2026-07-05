@@ -15,27 +15,6 @@
     pokedex.pokemon.map((pokemon) => [pokemon.id, pokemon]),
   );
 
-  const typeStyles = {
-    Normal: "bg-stone-200 text-stone-800",
-    Fire: "bg-red-100 text-red-800",
-    Water: "bg-sky-100 text-sky-800",
-    Electric: "bg-yellow-100 text-yellow-900",
-    Grass: "bg-emerald-100 text-emerald-800",
-    Ice: "bg-cyan-100 text-cyan-800",
-    Fighting: "bg-orange-100 text-orange-800",
-    Poison: "bg-fuchsia-100 text-fuchsia-800",
-    Ground: "bg-amber-100 text-amber-900",
-    Flying: "bg-indigo-100 text-indigo-800",
-    Psychic: "bg-pink-100 text-pink-800",
-    Bug: "bg-lime-100 text-lime-800",
-    Rock: "bg-yellow-200 text-yellow-950",
-    Ghost: "bg-violet-100 text-violet-800",
-    Dragon: "bg-blue-100 text-blue-800",
-    Dark: "bg-zinc-300 text-zinc-900",
-    Steel: "bg-slate-200 text-slate-800",
-    Fairy: "bg-rose-100 text-rose-800",
-  };
-
   // --- reactive state (runes) ---
   let currentSpread = $state(1);
   let collectedIds = $state(loadInitialCollection());
@@ -316,12 +295,6 @@
           <span class="font-semibold text-slate-500">Progress</span>
           <span class="font-black">{progressPercent}%</span>
         </div>
-        <div
-          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-emerald-500 bg-white/75 px-2 shadow-sm"
-        >
-          <span class="font-semibold text-slate-500">Spread</span>
-          <span class="font-black">{currentSpread}/{TOTAL_SPREADS}</span>
-        </div>
         <button
           class="h-10 max-w-[220px] shrink truncate border border-slate-300 bg-white px-2 text-left font-bold transition hover:border-red-500 hover:text-red-700 disabled:opacity-35"
           disabled={!nextMissing}
@@ -403,21 +376,18 @@
           {@render BinderPage({
             pageNumber: 0,
             slots: null,
-            typeStyles,
             onToggle: null,
           })}
         {/if}
         {@render BinderPage({
           pageNumber: leftPageNumber,
           slots: leftPageSlots,
-          typeStyles,
           onToggle: toggleCollected,
         })}
         {#if rightPageSlots.length > 0 && rightPageNumber}
           {@render BinderPage({
             pageNumber: rightPageNumber,
             slots: rightPageSlots,
-            typeStyles,
             onToggle: toggleCollected,
           })}
         {/if}
@@ -426,13 +396,12 @@
   </section>
 </main>
 
-{#snippet BinderPage({ pageNumber, slots, typeStyles, onToggle })}
+{#snippet BinderPage({ pageNumber, slots, onToggle })}
   <section
     class="flex min-h-0 flex-col bg-white/75 p-2 shadow-pocket ring-1 ring-slate-300"
   >
     <div class="mb-2 flex h-7 shrink-0 items-center justify-between gap-3">
       <h3 class="text-base font-black text-slate-950">Page {pageNumber}</h3>
-      <span class="text-xs font-bold text-slate-500">16 pockets</span>
     </div>
 
     <div class="grid min-h-0 flex-1 grid-cols-4 grid-rows-4 gap-2">
@@ -465,16 +434,6 @@
                   alt="pokemon sprite"
                 />
               </div>
-
-              <!-- <div>
-                <div class="flex flex-wrap gap-1">
-                  {#each slot.pokemon.types as type}
-                    <span class={`px-1 py-0.5 text-[9px] font-black ${typeStyles[type] ?? "bg-slate-200 text-slate-800"}`}>
-                      {type}
-                    </span>
-                  {/each}
-                </div>
-              </div> -->
             </div>
           {:else}
             <div class="flex h-full flex-col justify-between">
