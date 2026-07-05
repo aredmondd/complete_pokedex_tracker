@@ -23,6 +23,7 @@
   let query = $state("");
   let theme = $state(loadInitialTheme());
   let mode = $state("binder");
+  let hidden = $state(true);
 
   // plain refs, not reactive state — only ever used imperatively
   let importInput;
@@ -124,6 +125,10 @@
     mode = mode === "binder" ? "list" : "binder";
   }
 
+  function toggleHidden() {
+    hidden = hidden === true ? false : true;
+  }
+
   function buildSlot(pocketNumber) {
     const pokemon = pokemonById.get(pocketNumber);
     const pageNumber = Math.ceil(pocketNumber / POCKETS_PER_PAGE);
@@ -207,25 +212,33 @@
     }
   }
 
-  // Returns the pokemon list filtered by name or id, used for list mode.
   function filterPokemon(rawQuery) {
     const trimmed = rawQuery.trim().toLowerCase();
-
-    if (!trimmed) return pokedex.pokemon;
-
     const numericQuery = Number(trimmed.replace(/^#/, ""));
 
-    if (Number.isInteger(numericQuery) && numericQuery > 0) {
-      return pokedex.pokemon.filter(
-        (pokemon) =>
-          pokemon.id === numericQuery ||
-          pokemon.name.toLowerCase().includes(trimmed),
-      );
-    }
+    const isNumericQuery = Number.isInteger(numericQuery) && numericQuery > 0;
 
-    return pokedex.pokemon.filter((pokemon) =>
-      pokemon.name.toLowerCase().includes(trimmed),
-    );
+    return pokedex.pokemon.filter((pokemon) => {
+      const isCollected = collectedIds.has(pokemon.id);
+
+      // hide collected cards only in list + hidden mode
+      const hiddenRule = !(hidden && mode === "list" && isCollected);
+
+      // CASE 1: numeric search (#25, 25)
+      if (isNumericQuery) {
+        return (
+          (pokemon.id === numericQuery ||
+            pokemon.name.toLowerCase().includes(trimmed)) &&
+          hiddenRule
+        );
+      }
+
+      // CASE 2: text search or empty query
+      const matchesSearch =
+        !trimmed || pokemon.name.toLowerCase().includes(trimmed);
+
+      return matchesSearch && hiddenRule;
+    });
   }
 
   function isCollected(slot) {
@@ -412,6 +425,51 @@
             >
           {/if}
         </div>
+
+        {#if mode === "list"}
+          <div
+            class="p-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-800"
+            onclick={toggleHidden}
+            title="Toggle Collected Pokemon"
+          >
+            {#if hidden}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-eye-icon lucide-eye"
+                ><path
+                  d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                /><circle cx="12" cy="12" r="3" /></svg
+              >
+            {:else}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-eye-off-icon lucide-eye-off"
+                ><path
+                  d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
+                /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path
+                  d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
+                /><path d="m2 2 20 20" /></svg
+              >
+            {/if}
+          </div>
+        {/if}
+
         <div
           class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
