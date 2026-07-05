@@ -437,7 +437,9 @@
         <div
           class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
-          <span>Missing</span>
+          <span class="font-semibold text-slate-500 dark:text-slate-400"
+            >Missing</span
+          >
           <span class="font-black">{pokedex.count - collectedCount}</span>
         </div>
         <div
