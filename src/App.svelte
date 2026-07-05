@@ -22,6 +22,7 @@
   let highlightedId = $state(null);
   let query = $state("");
   let theme = $state(loadInitialTheme());
+  let mode = $state("binder");
 
   // plain refs, not reactive state — only ever used imperatively
   let importInput;
@@ -114,6 +115,10 @@
 
   function toggleTheme() {
     theme = theme === "dark" ? "light" : "dark";
+  }
+
+  function toggleMode() {
+    mode = mode === "binder" ? "list" : "binder";
   }
 
   function buildSlot(pocketNumber) {
@@ -317,6 +322,46 @@
       class="shrink-0 border-b border-slate-300/80 pb-2 dark:border-slate-700/80"
     >
       <div class="flex min-w-0 items-center gap-2 text-sm">
+        <div
+          class="p-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-800"
+          onclick={toggleMode}
+        >
+          {#if mode === "binder"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-book-open-icon lucide-book-open"
+              ><path d="M12 7v14" /><path
+                d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+              /></svg
+            >
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-list-icon lucide-list"
+              ><path d="M3 5h.01" /><path d="M3 12h.01" /><path
+                d="M3 19h.01"
+              /><path d="M8 5h13" /><path d="M8 12h13" /><path
+                d="M8 19h13"
+              /></svg
+            >
+          {/if}
+        </div>
         <div
           class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
