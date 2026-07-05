@@ -716,7 +716,7 @@
         <button onclick={toggleShiny}>
           <div
             class="h-10 shrink-0 border border-slate-300 bg-white p-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
-            tooltip="Toggle Shiny Versions"
+            title="Toggle Shiny Versions"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -743,6 +743,7 @@
         <button onclick={randomPokemon}>
           <div
             class="h-10 shrink-0 border border-slate-300 bg-white p-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
+            title="Random Pokemon you have not collected"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
