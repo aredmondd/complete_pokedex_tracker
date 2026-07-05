@@ -8,6 +8,7 @@
   const TOTAL_SPREADS =
     1 + Math.ceil((TOTAL_POCKETS - POCKETS_PER_PAGE) / POCKETS_PER_SPREAD);
   const STORAGE_KEY = "complete-pokedex.collection.v1";
+  const THEME_STORAGE_KEY = "complete-pokedex.theme.v1";
   // change this to be "/sprites/pokemon/shiny/" to use shiny versions for your art!
   const SPRITE_DIRECTORY = "/sprites/pokemon/";
 
@@ -20,6 +21,7 @@
   let collectedIds = $state(loadInitialCollection());
   let highlightedId = $state(null);
   let query = $state("");
+  let theme = $state(loadInitialTheme());
 
   // plain refs, not reactive state — only ever used imperatively
   let importInput;
@@ -56,7 +58,7 @@
   );
   let nextMissing = $derived(findNextMissing());
 
-  // --- persistence effect (replaces the old `$: if (...)` reactive block) ---
+  // --- persistence effects ---
   $effect(() => {
     if (typeof localStorage === "undefined") return;
 
@@ -68,6 +70,16 @@
         collectedIds: [...collectedIds].sort((left, right) => left - right),
       }),
     );
+  });
+
+  $effect(() => {
+    if (typeof document === "undefined") return;
+
+    document.documentElement.classList.toggle("dark", theme === "dark");
+
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    }
   });
 
   function loadInitialCollection() {
@@ -82,6 +94,26 @@
     } catch {
       return new Set();
     }
+  }
+
+  function loadInitialTheme() {
+    if (typeof localStorage !== "undefined") {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved === "light" || saved === "dark") return saved;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return "dark";
+    }
+
+    return "light";
+  }
+
+  function toggleTheme() {
+    theme = theme === "dark" ? "light" : "dark";
   }
 
   function buildSlot(pocketNumber) {
@@ -111,8 +143,6 @@
     }
 
     collectedIds = next;
-    // nextMissing is $derived now, so it recomputes on its own —
-    // no manual reassignment needed here anymore.
   }
 
   function clampSpread(spread) {
@@ -176,22 +206,22 @@
 
   function cardStateClass(slot) {
     if (!slot.pokemon) {
-      return "border-dashed border-slate-300 bg-slate-100/70 text-slate-400";
+      return "border-dashed border-slate-300 bg-slate-100/70 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-600";
     }
 
     if (isHighlighted(slot) && isCollected(slot)) {
-      return "border-blue-500 border-4 bg-gray-200/80 opacity-70";
+      return "border-blue-500 border-4 bg-gray-200/80 opacity-70 dark:bg-slate-700/80 dark:border-blue-400";
     }
 
     if (isHighlighted(slot)) {
-      return "bg-yellow-200 shadow-sm";
+      return "bg-yellow-200 shadow-sm dark:bg-yellow-900/50 dark:text-yellow-50";
     }
 
     if (isCollected(slot)) {
-      return "border-gray-300 bg-gray-200/80 opacity-70";
+      return "border-gray-300 bg-gray-200/80 opacity-70 dark:border-slate-600 dark:bg-slate-700/80";
     }
 
-    return "border-slate-300 bg-white hover:border-red-500 hover:shadow-sm";
+    return "border-slate-300 bg-white hover:border-red-500 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400";
   }
 
   function findNextMissing() {
@@ -279,24 +309,32 @@
   <title>Complete Pokedex Binder</title>
 </svelte:head>
 
-<main class="h-screen overflow-hidden bg-[#f7f5ef] text-slate-900">
+<main
+  class="h-screen overflow-hidden bg-[#f7f5ef] text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+>
   <section class="flex h-full w-full flex-col gap-2 px-2 py-2">
-    <header class="shrink-0 border-b border-slate-300/80 pb-2">
+    <header
+      class="shrink-0 border-b border-slate-300/80 pb-2 dark:border-slate-700/80"
+    >
       <div class="flex min-w-0 items-center gap-2 text-sm">
         <div
-          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm"
+          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
-          <span class="font-semibold text-slate-500">Collected</span>
+          <span class="font-semibold text-slate-500 dark:text-slate-400"
+            >Collected</span
+          >
           <span class="font-black">{collectedCount}/{pokedex.count}</span>
         </div>
         <div
-          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-sky-500 bg-white/75 px-2 shadow-sm"
+          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-sky-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
-          <span class="font-semibold text-slate-500">Progress</span>
+          <span class="font-semibold text-slate-500 dark:text-slate-400"
+            >Progress</span
+          >
           <span class="font-black">{progressPercent}%</span>
         </div>
         <button
-          class="h-10 max-w-[220px] shrink truncate border border-slate-300 bg-white px-2 text-left font-bold transition hover:border-red-500 hover:text-red-700 disabled:opacity-35"
+          class="h-10 max-w-[220px] shrink truncate border border-slate-300 bg-white px-2 text-left font-bold transition hover:border-red-500 hover:text-red-700 disabled:opacity-35 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
           disabled={!nextMissing}
           onclick={jumpToNextMissing}
           title={nextMissing
@@ -313,7 +351,7 @@
           onsubmit={handleSearchSubmit}
         >
           <input
-            class="min-w-0 flex-1 border border-slate-300 bg-white px-2 text-sm outline-none ring-red-600 transition focus:ring-2"
+            class="min-w-0 flex-1 border border-slate-300 bg-white px-2 text-sm outline-none ring-red-600 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
             bind:value={query}
             bind:this={searchInput}
             oninput={submitSearch}
@@ -323,7 +361,7 @@
 
         <div class="flex gap-2 items-center justify-center">
           <button
-            class="disabled:opacity-35 border border-slate-300 bg-white p-2"
+            class="disabled:opacity-35 border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-800"
             aria-label="Previous spread"
             disabled={currentSpread === 1}
             onclick={() => setSpread(currentSpread - 1)}
@@ -353,7 +391,7 @@
             />
           </label>
           <button
-            class="disabled:opacity-35 border border-slate-300 bg-white p-2"
+            class="disabled:opacity-35 border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-800"
             aria-label="Next spread"
             disabled={currentSpread === TOTAL_SPREADS}
             onclick={() => setSpread(currentSpread + 1)}
@@ -375,7 +413,7 @@
         </div>
 
         <button
-          class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
+          class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
           onclick={exportCollection}
         >
           <svg
@@ -395,7 +433,7 @@
           >
         </button>
         <button
-          class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
+          class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
           onclick={() => importInput.click()}
         >
           <svg
@@ -421,6 +459,48 @@
           accept="application/json"
           onchange={importCollection}
         />
+
+        <button
+          class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
+          aria-label="Toggle light and dark mode"
+          onclick={toggleTheme}
+        >
+          {#if theme === "dark"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-sun"
+              ><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path
+                d="M12 20v2"
+              /><path d="m4.93 4.93 1.41 1.41" /><path
+                d="m17.66 17.66 1.41 1.41"
+              /><path d="M2 12h2" /><path d="M20 12h2" /><path
+                d="m6.34 17.66-1.41 1.41"
+              /><path d="m19.07 4.93-1.41 1.41" /></svg
+            >
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-moon"
+              ><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg
+            >
+          {/if}
+        </button>
       </div>
     </header>
 
@@ -452,10 +532,12 @@
 
 {#snippet BinderPage({ pageNumber, slots, onToggle })}
   <section
-    class="flex min-h-0 flex-col bg-white/75 p-2 shadow-pocket ring-1 ring-slate-300"
+    class="flex min-h-0 flex-col bg-white/75 p-2 shadow-pocket ring-1 ring-slate-300 dark:bg-slate-800/75 dark:ring-slate-700"
   >
     <div class="mb-2 flex h-7 shrink-0 items-center justify-between gap-3">
-      <h3 class="text-base font-black text-slate-950">Page {pageNumber}</h3>
+      <h3 class="text-base font-black text-slate-950 dark:text-slate-50">
+        Page {pageNumber}
+      </h3>
     </div>
 
     <div class="grid min-h-0 flex-1 grid-cols-4 grid-rows-4 gap-2">
@@ -470,12 +552,13 @@
             <div class="flex h-full min-h-0 flex-col justify-between gap-1">
               <div>
                 <div class="flex items-start justify-between gap-2">
-                  <span class="text-xs font-black text-slate-500"
+                  <span
+                    class="text-xs font-black text-slate-500 dark:text-slate-400"
                     >#{String(slot.pocketNumber).padStart(4, "0")}</span
                   >
                 </div>
                 <p
-                  class="mt-1 whitespace-normal break-words text-[clamp(0.68rem,1.1vw,0.95rem)] font-black leading-[1.08] text-slate-950"
+                  class="mt-1 whitespace-normal break-words text-[clamp(0.68rem,1.1vw,0.95rem)] font-black leading-[1.08] text-slate-950 dark:text-slate-50"
                 >
                   {slot.pokemon.name}
                 </p>
