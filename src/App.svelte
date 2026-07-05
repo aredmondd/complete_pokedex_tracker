@@ -373,16 +373,18 @@
   }
 
   function handleWheel(event) {
-    event.preventDefault(); // stops page scrolling (optional but usually desired)
+    if (mode === "binder") {
+      event.preventDefault(); // stops page scrolling (optional but usually desired)
 
-    if (event.deltaY < 0) {
-      currentSpread += 1;
-    } else {
-      currentSpread -= 1;
+      if (event.deltaY < 0) {
+        currentSpread += 1;
+      } else {
+        currentSpread -= 1;
+      }
+
+      // optional: clamp to prevent invalid values
+      currentSpread = Math.max(1, currentSpread);
     }
-
-    // optional: clamp to prevent invalid values
-    currentSpread = Math.max(1, currentSpread);
   }
 
   window.addEventListener("wheel", handleWheel, { passive: false });
@@ -725,7 +727,7 @@
           </p>
         {:else}
           <div
-            class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
+            class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6"
           >
             {#each filteredPokemon as pokemon (pokemon.id)}
               <button
@@ -735,16 +737,16 @@
               >
                 <img
                   src={`${SPRITE_DIRECTORY}${pokemon.id}.png`}
-                  class={`h-10 w-10 shrink-0 ${collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
+                  class={`h-14 w-14 shrink-0 ${collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
                   alt="pokemon sprite"
                 />
                 <div class="min-w-0">
                   <span
-                    class="block text-[10px] font-black text-slate-500 dark:text-slate-400"
+                    class="block text-[12px] font-black text-slate-500 dark:text-slate-400"
                     >#{String(pokemon.id).padStart(4, "0")}</span
                   >
                   <span
-                    class="block truncate text-xs font-black text-slate-950 dark:text-slate-50"
+                    class="block truncate text-lg font-black text-slate-950 dark:text-slate-50"
                     >{pokemon.name}</span
                   >
                 </div>
