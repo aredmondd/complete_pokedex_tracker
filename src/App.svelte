@@ -321,56 +321,58 @@
           />
         </form>
 
-        <button
-          class="h-10 w-10 shrink-0 bg-white text-2xl font-black shadow-sm ring-1 ring-slate-300 transition hover:bg-slate-100 disabled:opacity-35"
-          aria-label="Previous spread"
-          disabled={currentSpread === 1}
-          onclick={() => setSpread(currentSpread - 1)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-move-left-icon lucide-move-left"
-            ><path d="M6 8L2 12L6 16" /><path d="M2 12H22" /></svg
+        <div class="flex gap-2 items-center justify-center">
+          <button
+            class="disabled:opacity-35 border border-slate-300 bg-white p-2"
+            aria-label="Previous spread"
+            disabled={currentSpread === 1}
+            onclick={() => setSpread(currentSpread - 1)}
           >
-        </button>
-        <label class="min-w-[120px] max-w-[180px] flex-1">
-          <span class="sr-only">Spread</span>
-          <input
-            class="w-full accent-red-600"
-            type="range"
-            min="1"
-            max={TOTAL_SPREADS}
-            bind:value={currentSpread}
-          />
-        </label>
-        <button
-          class="h-10 w-10 shrink-0 bg-white text-2xl font-black shadow-sm ring-1 ring-slate-300 transition hover:bg-slate-100 disabled:opacity-35"
-          aria-label="Next spread"
-          disabled={currentSpread === TOTAL_SPREADS}
-          onclick={() => setSpread(currentSpread + 1)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-move-right-icon lucide-move-right"
-            ><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-move-left-icon lucide-move-left hover:text-blue-500"
+              ><path d="M6 8L2 12L6 16" /><path d="M2 12H22" /></svg
+            >
+          </button>
+          <label class="min-w-[120px] max-w-[180px] flex-1">
+            <span class="sr-only">Spread</span>
+            <input
+              class="w-full align-middle accent-red-600"
+              type="range"
+              min="1"
+              max={TOTAL_SPREADS}
+              bind:value={currentSpread}
+            />
+          </label>
+          <button
+            class="disabled:opacity-35 border border-slate-300 bg-white p-2"
+            aria-label="Next spread"
+            disabled={currentSpread === TOTAL_SPREADS}
+            onclick={() => setSpread(currentSpread + 1)}
           >
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-move-right-icon lucide-move-right"
+              ><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg
+            >
+          </button>
+        </div>
 
         <button
           class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
