@@ -371,6 +371,21 @@
       submitSearch();
     }
   }
+
+  function handleWheel(event) {
+    event.preventDefault(); // stops page scrolling (optional but usually desired)
+
+    if (event.deltaY < 0) {
+      currentSpread += 1;
+    } else {
+      currentSpread -= 1;
+    }
+
+    // optional: clamp to prevent invalid values
+    currentSpread = Math.max(1, currentSpread);
+  }
+
+  window.addEventListener("wheel", handleWheel, { passive: false });
 </script>
 
 <svelte:head>
