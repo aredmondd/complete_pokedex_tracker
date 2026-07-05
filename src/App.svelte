@@ -426,57 +426,19 @@
           {/if}
         </div>
 
-        {#if mode === "list"}
-          <div
-            class="p-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-800"
-            onclick={toggleHidden}
-            title="Toggle Collected Pokemon"
-          >
-            {#if hidden}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-eye-icon lucide-eye"
-                ><path
-                  d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
-                /><circle cx="12" cy="12" r="3" /></svg
-              >
-            {:else}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-eye-off-icon lucide-eye-off"
-                ><path
-                  d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
-                /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path
-                  d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
-                /><path d="m2 2 20 20" /></svg
-              >
-            {/if}
-          </div>
-        {/if}
-
         <div
-          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
+          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-green-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
         >
           <span class="font-semibold text-slate-500 dark:text-slate-400"
             >Collected</span
           >
           <span class="font-black">{collectedCount}/{pokedex.count}</span>
+        </div>
+        <div
+          class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-red-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
+        >
+          <span>Missing</span>
+          <span class="font-black">{pokedex.count - collectedCount}</span>
         </div>
         <div
           class="flex h-10 shrink-0 items-center gap-2 border-l-4 border-sky-500 bg-white/75 px-2 shadow-sm dark:bg-slate-800/75"
@@ -508,9 +470,7 @@
             bind:value={query}
             bind:this={searchInput}
             oninput={handleSearchInput}
-            placeholder={mode === "binder"
-              ? "Name or #"
-              : "Filter by name or #"}
+            placeholder={"Filter by name or number"}
           />
         </form>
 
@@ -657,6 +617,50 @@
             >
           {/if}
         </button>
+
+        {#if mode === "list"}
+          <div
+            class="h-10 shrink-0 border border-slate-300 bg-white p-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
+            onclick={toggleHidden}
+            title="Toggle Collected Pokemon"
+          >
+            {#if hidden}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-eye-icon lucide-eye"
+                ><path
+                  d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                /><circle cx="12" cy="12" r="3" /></svg
+              >
+            {:else}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-eye-off-icon lucide-eye-off"
+                ><path
+                  d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
+                /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path
+                  d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
+                /><path d="m2 2 20 20" /></svg
+              >
+            {/if}
+          </div>
+        {/if}
       </div>
     </header>
 
