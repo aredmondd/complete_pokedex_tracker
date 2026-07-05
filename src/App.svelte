@@ -173,9 +173,14 @@
       return;
     }
 
-    const match = pokedex.pokemon.find((pokemon) =>
-      pokemon.name.toLowerCase().includes(trimmed.toLowerCase()),
-    );
+    const lowerQuery = trimmed.toLowerCase();
+    const match =
+      pokedex.pokemon.find((pokemon) =>
+        pokemon.name.toLowerCase().startsWith(lowerQuery),
+      ) ??
+      pokedex.pokemon.find((pokemon) =>
+        pokemon.name.toLowerCase().includes(lowerQuery),
+      );
 
     if (match) {
       jumpToId(match.id);
@@ -338,7 +343,7 @@
             class="min-w-0 flex-1 border border-slate-300 bg-white px-2 text-sm outline-none ring-red-600 transition focus:ring-2"
             bind:value={query}
             bind:this={searchInput}
-            onchange={submitSearch}
+            oninput={submitSearch}
             placeholder="Name or #"
           />
         </form>
@@ -457,6 +462,7 @@
                 <img
                   src={`${SPRITE_DIRECTORY}${slot.pokemon.id}.png`}
                   class={isCollected(slot) ? "grayscale blur-[1px]" : ""}
+                  alt="pokemon sprite"
                 />
               </div>
 
