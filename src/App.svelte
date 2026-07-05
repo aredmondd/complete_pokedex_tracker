@@ -389,7 +389,7 @@
           class="p-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-800"
           onclick={toggleMode}
         >
-          {#if mode === "binder"}
+          {#if mode === "list"}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
