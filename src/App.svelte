@@ -327,7 +327,19 @@
           disabled={currentSpread === 1}
           onclick={() => setSpread(currentSpread - 1)}
         >
-          ‹
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-move-left-icon lucide-move-left"
+            ><path d="M6 8L2 12L6 16" /><path d="M2 12H22" /></svg
+          >
         </button>
         <label class="min-w-[120px] max-w-[180px] flex-1">
           <span class="sr-only">Spread</span>
@@ -345,20 +357,60 @@
           disabled={currentSpread === TOTAL_SPREADS}
           onclick={() => setSpread(currentSpread + 1)}
         >
-          ›
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-move-right-icon lucide-move-right"
+            ><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg
+          >
         </button>
 
         <button
           class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
           onclick={exportCollection}
         >
-          Export
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-download-icon lucide-download"
+            ><path d="M12 15V3" /><path
+              d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+            /><path d="m7 10 5 5 5-5" /></svg
+          >
         </button>
         <button
           class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
           onclick={() => importInput.click()}
         >
-          Import
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-upload-icon lucide-upload"
+            ><path d="M12 3v12" /><path d="m17 8-5-5-5 5" /><path
+              d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+            /></svg
+          >
         </button>
         <input
           class="hidden"
