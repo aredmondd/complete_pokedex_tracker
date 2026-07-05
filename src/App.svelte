@@ -9,8 +9,8 @@
     1 + Math.ceil((TOTAL_POCKETS - POCKETS_PER_PAGE) / POCKETS_PER_SPREAD);
   const STORAGE_KEY = "complete-pokedex.collection.v1";
   const THEME_STORAGE_KEY = "complete-pokedex.theme.v1";
-  // change this to be "/sprites/pokemon/shiny/" to use shiny versions for your art!
   const SPRITE_DIRECTORY = "/sprites/pokemon/";
+  const SHINY_DIRECTORY = "/sprites/pokemon/shiny/";
 
   const pokemonById = new Map(
     pokedex.pokemon.map((pokemon) => [pokemon.id, pokemon]),
@@ -24,6 +24,7 @@
   let theme = $state(loadInitialTheme());
   let mode = $state("binder");
   let hidden = $state(true);
+  let directory = $state(SPRITE_DIRECTORY);
 
   // plain refs, not reactive state — only ever used imperatively
   let importInput;
@@ -126,7 +127,13 @@
   }
 
   function toggleHidden() {
+    if (mode === "binder") return;
     hidden = hidden === true ? false : true;
+  }
+
+  function toggleShiny() {
+    directory =
+      directory === SPRITE_DIRECTORY ? SHINY_DIRECTORY : SPRITE_DIRECTORY;
   }
 
   function buildSlot(pocketNumber) {
@@ -637,11 +644,11 @@
           {/if}
         </button>
 
-        {#if mode === "list"}
+        <button disabled={mode === "binder"} class="disabled:opacity-35">
           <div
             class="h-10 shrink-0 border border-slate-300 bg-white p-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
             onclick={toggleHidden}
-            title="Toggle Collected Pokemon"
+            title="Toggle Collected Pokemon (List View)"
           >
             {#if hidden}
               <svg
@@ -679,7 +686,34 @@
               >
             {/if}
           </div>
-        {/if}
+        </button>
+
+        <button onclick={toggleShiny}>
+          <div
+            class="h-10 shrink-0 border border-slate-300 bg-white p-2 font-bold transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400 dark:hover:text-red-400"
+            tooltip="Toggle Shiny Versions"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-sparkles-icon lucide-sparkles"
+              ><path
+                d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"
+              /><path d="M20 2v4" /><path d="M22 4h-4" /><circle
+                cx="4"
+                cy="20"
+                r="2"
+              /></svg
+            >
+          </div>
+        </button>
       </div>
     </header>
 
@@ -736,7 +770,7 @@
                 onclick={() => toggleCollectedId(pokemon.id)}
               >
                 <img
-                  src={`${SPRITE_DIRECTORY}${pokemon.id}.png`}
+                  src={`${directory}${pokemon.id}.png`}
                   class={`h-14 w-14 shrink-0 ${collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
                   alt="pokemon sprite"
                 />
@@ -795,7 +829,7 @@
 
               <div class="flex flex-1 items-center justify-center">
                 <img
-                  src={`${SPRITE_DIRECTORY}${slot.pokemon.id}.png`}
+                  src={`${directory}${slot.pokemon.id}.png`}
                   class={isCollected(slot) ? "grayscale blur-[1px]" : ""}
                   alt="pokemon sprite"
                 />
