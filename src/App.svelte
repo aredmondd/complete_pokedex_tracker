@@ -36,52 +36,51 @@
     Fairy: "bg-rose-100 text-rose-800",
   };
 
-  let currentSpread = 1;
-  let collectedIds = new Set();
-  let highlightedId = null;
-  let query = "";
+  // --- reactive state (runes) ---
+  let currentSpread = $state(1);
+  let collectedIds = $state(loadInitialCollection());
+  let highlightedId = $state(null);
+  let query = $state("");
+
+  // plain refs, not reactive state — only ever used imperatively
   let importInput;
   let searchInput;
 
-  $: collectedCount = collectedIds.size;
-  $: slotStateSignature = `${highlightedId ?? ""}:${[...collectedIds].sort((left, right) => left - right).join(",")}`;
-  $: progressPercent = Math.round((collectedCount / pokedex.count) * 100);
-  $: spreadStartPocket =
+  // --- derived state ---
+  let collectedCount = $derived(collectedIds.size);
+  let progressPercent = $derived(
+    Math.round((collectedCount / pokedex.count) * 100),
+  );
+  let spreadStartPocket = $derived(
     currentSpread === 1
       ? 1
-      : POCKETS_PER_PAGE + (currentSpread - 2) * POCKETS_PER_SPREAD + 1;
-  $: spreadPocketCount =
-    currentSpread === 1 ? POCKETS_PER_PAGE : POCKETS_PER_SPREAD;
-  $: spreadEndPocket = Math.min(
-    spreadStartPocket + spreadPocketCount - 1,
-    TOTAL_POCKETS,
+      : POCKETS_PER_PAGE + (currentSpread - 2) * POCKETS_PER_SPREAD + 1,
   );
-  $: spreadSlots = Array.from({ length: spreadPocketCount }, (_, index) => {
-    slotStateSignature;
-    const pocketNumber = spreadStartPocket + index;
-    return pocketNumber <= TOTAL_POCKETS ? buildSlot(pocketNumber) : null;
-  }).filter(Boolean);
-  $: leftPageSlots = spreadSlots.slice(0, POCKETS_PER_PAGE);
-  $: rightPageSlots = spreadSlots.slice(POCKETS_PER_PAGE, POCKETS_PER_SPREAD);
-  $: leftPageNumber =
-    currentSpread === 1 ? 1 : (currentSpread - 2) * PAGES_PER_SPREAD + 2;
-  $: rightPageNumber = currentSpread === 1 ? null : leftPageNumber + 1;
-  $: nextMissing = findNextMissing();
+  let spreadPocketCount = $derived(
+    currentSpread === 1 ? POCKETS_PER_PAGE : POCKETS_PER_SPREAD,
+  );
+  let spreadSlots = $derived(
+    Array.from({ length: spreadPocketCount }, (_, index) => {
+      const pocketNumber = spreadStartPocket + index;
+      return pocketNumber <= TOTAL_POCKETS ? buildSlot(pocketNumber) : null;
+    }).filter(Boolean),
+  );
+  let leftPageSlots = $derived(spreadSlots.slice(0, POCKETS_PER_PAGE));
+  let rightPageSlots = $derived(
+    spreadSlots.slice(POCKETS_PER_PAGE, POCKETS_PER_SPREAD),
+  );
+  let leftPageNumber = $derived(
+    currentSpread === 1 ? 1 : (currentSpread - 2) * PAGES_PER_SPREAD + 2,
+  );
+  let rightPageNumber = $derived(
+    currentSpread === 1 ? null : leftPageNumber + 1,
+  );
+  let nextMissing = $derived(findNextMissing());
 
-  if (typeof localStorage !== "undefined") {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  // --- persistence effect (replaces the old `$: if (...)` reactive block) ---
+  $effect(() => {
+    if (typeof localStorage === "undefined") return;
 
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        collectedIds = new Set(parsed.collectedIds ?? []);
-      } catch {
-        collectedIds = new Set();
-      }
-    }
-  }
-
-  $: if (typeof localStorage !== "undefined") {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -90,6 +89,20 @@
         collectedIds: [...collectedIds].sort((left, right) => left - right),
       }),
     );
+  });
+
+  function loadInitialCollection() {
+    if (typeof localStorage === "undefined") return new Set();
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return new Set();
+
+    try {
+      const parsed = JSON.parse(saved);
+      return new Set(parsed.collectedIds ?? []);
+    } catch {
+      return new Set();
+    }
   }
 
   function buildSlot(pocketNumber) {
@@ -108,9 +121,7 @@
   }
 
   function toggleCollected(slot) {
-    if (!slot.pokemon) {
-      return;
-    }
+    if (!slot.pokemon) return;
 
     const next = new Set(collectedIds);
 
@@ -121,8 +132,8 @@
     }
 
     collectedIds = next;
-
-    nextMissing = findNextMissing();
+    // nextMissing is $derived now, so it recomputes on its own —
+    // no manual reassignment needed here anymore.
   }
 
   function clampSpread(spread) {
@@ -234,9 +245,7 @@
   function importCollection(event) {
     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     const reader = new FileReader();
 
@@ -272,8 +281,13 @@
       query = "";
 
       searchInput?.focus();
-      searchInput?.select(); // optional since query is empty, but harmless
+      searchInput?.select();
     }
+  }
+
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+    submitSearch();
   }
 </script>
 
@@ -306,7 +320,7 @@
         <button
           class="h-10 max-w-[220px] shrink truncate border border-slate-300 bg-white px-2 text-left font-bold transition hover:border-red-500 hover:text-red-700 disabled:opacity-35"
           disabled={!nextMissing}
-          on:click={jumpToNextMissing}
+          onclick={jumpToNextMissing}
           title={nextMissing
             ? `Next Missing: #${nextMissing.id} ${nextMissing.name}`
             : "Complete"}
@@ -318,27 +332,22 @@
 
         <form
           class="flex h-10 min-w-[180px] flex-1 gap-1"
-          on:submit|preventDefault={submitSearch}
+          onsubmit={handleSearchSubmit}
         >
           <input
             class="min-w-0 flex-1 border border-slate-300 bg-white px-2 text-sm outline-none ring-red-600 transition focus:ring-2"
             bind:value={query}
             bind:this={searchInput}
+            onchange={submitSearch}
             placeholder="Name or #"
           />
-          <button
-            class="bg-slate-950 px-3 text-sm font-bold text-white transition hover:bg-red-700"
-            type="submit"
-          >
-            Go
-          </button>
         </form>
 
         <button
           class="h-10 w-10 shrink-0 bg-white text-2xl font-black shadow-sm ring-1 ring-slate-300 transition hover:bg-slate-100 disabled:opacity-35"
           aria-label="Previous spread"
           disabled={currentSpread === 1}
-          on:click={() => setSpread(currentSpread - 1)}
+          onclick={() => setSpread(currentSpread - 1)}
         >
           ‹
         </button>
@@ -356,20 +365,20 @@
           class="h-10 w-10 shrink-0 bg-white text-2xl font-black shadow-sm ring-1 ring-slate-300 transition hover:bg-slate-100 disabled:opacity-35"
           aria-label="Next spread"
           disabled={currentSpread === TOTAL_SPREADS}
-          on:click={() => setSpread(currentSpread + 1)}
+          onclick={() => setSpread(currentSpread + 1)}
         >
           ›
         </button>
 
         <button
           class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
-          on:click={exportCollection}
+          onclick={exportCollection}
         >
           Export
         </button>
         <button
           class="h-10 shrink-0 border border-slate-300 bg-white px-2 font-bold transition hover:border-red-500 hover:text-red-700"
-          on:click={() => importInput.click()}
+          onclick={() => importInput.click()}
         >
           Import
         </button>
@@ -378,7 +387,7 @@
           bind:this={importInput}
           type="file"
           accept="application/json"
-          on:change={importCollection}
+          onchange={importCollection}
         />
       </div>
     </header>
@@ -427,7 +436,7 @@
           class={`min-h-0 overflow-hidden border p-2 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 ${cardStateClass(slot)}`}
           aria-pressed={isCollected(slot)}
           disabled={!slot.pokemon}
-          on:click={() => onToggle(slot)}
+          onclick={() => onToggle(slot)}
         >
           {#if slot.pokemon}
             <div class="flex h-full min-h-0 flex-col justify-between gap-1">
@@ -477,4 +486,4 @@
   </section>
 {/snippet}
 
-<svelte:window on:keydown={handleGlobalShortcuts} />
+<svelte:window onkeydown={handleGlobalShortcuts} />
