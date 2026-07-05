@@ -59,6 +59,9 @@
   );
   let nextMissing = $derived(findNextMissing());
 
+  // Pokemon list filtered by the current search query, used in list mode.
+  let filteredPokemon = $derived(filterPokemon(query));
+
   // --- persistence effects ---
   $effect(() => {
     if (typeof localStorage === "undefined") return;
@@ -138,13 +141,16 @@
 
   function toggleCollected(slot) {
     if (!slot.pokemon) return;
+    toggleCollectedId(slot.pocketNumber);
+  }
 
+  function toggleCollectedId(id) {
     const next = new Set(collectedIds);
 
-    if (next.has(slot.pocketNumber)) {
-      next.delete(slot.pocketNumber);
+    if (next.has(id)) {
+      next.delete(id);
     } else {
-      next.add(slot.pocketNumber);
+      next.add(id);
     }
 
     collectedIds = next;
@@ -201,6 +207,27 @@
     }
   }
 
+  // Returns the pokemon list filtered by name or id, used for list mode.
+  function filterPokemon(rawQuery) {
+    const trimmed = rawQuery.trim().toLowerCase();
+
+    if (!trimmed) return pokedex.pokemon;
+
+    const numericQuery = Number(trimmed.replace(/^#/, ""));
+
+    if (Number.isInteger(numericQuery) && numericQuery > 0) {
+      return pokedex.pokemon.filter(
+        (pokemon) =>
+          pokemon.id === numericQuery ||
+          pokemon.name.toLowerCase().includes(trimmed),
+      );
+    }
+
+    return pokedex.pokemon.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(trimmed),
+    );
+  }
+
   function isCollected(slot) {
     return slot.collected;
   }
@@ -229,12 +256,23 @@
     return "border-slate-300 bg-white hover:border-red-500 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400";
   }
 
+  function listCardStateClass(pokemon) {
+    const collected = collectedIds.has(pokemon.id);
+
+    if (collected) {
+      return "border-gray-300 bg-gray-200/80 opacity-70 dark:border-slate-600 dark:bg-slate-700/80";
+    }
+
+    return "border-slate-300 bg-white hover:border-red-500 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-red-400";
+  }
+
   function findNextMissing() {
     return pokedex.pokemon.find((pokemon) => !collectedIds.has(pokemon.id));
   }
 
   function jumpToNextMissing() {
     if (nextMissing) {
+      mode = "binder";
       jumpToId(nextMissing.id);
     }
   }
@@ -304,9 +342,21 @@
     }
   }
 
+  function handleSearchInput() {
+    // In binder mode, typing jumps the binder to the matching pocket.
+    // In list mode, the filtered list updates reactively via $derived,
+    // so there's nothing extra to do here.
+    if (mode === "binder") {
+      submitSearch();
+    }
+  }
+
   function handleSearchSubmit(event) {
     event.preventDefault();
-    submitSearch();
+
+    if (mode === "binder") {
+      submitSearch();
+    }
   }
 </script>
 
@@ -399,8 +449,10 @@
             class="min-w-0 flex-1 border border-slate-300 bg-white px-2 text-sm outline-none ring-red-600 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
             bind:value={query}
             bind:this={searchInput}
-            oninput={submitSearch}
-            placeholder="Name or #"
+            oninput={handleSearchInput}
+            placeholder={mode === "binder"
+              ? "Name or #"
+              : "Filter by name or #"}
           />
         </form>
 
@@ -408,7 +460,7 @@
           <button
             class="disabled:opacity-35 border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-800"
             aria-label="Previous spread"
-            disabled={currentSpread === 1}
+            disabled={currentSpread === 1 || mode === "list"}
             onclick={() => setSpread(currentSpread - 1)}
           >
             <svg
@@ -428,17 +480,18 @@
           <label class="min-w-[120px] max-w-[180px] flex-1">
             <span class="sr-only">Spread</span>
             <input
-              class="w-full align-middle accent-red-600"
+              class="w-full align-middle accent-red-600 disabled:opacity-35"
               type="range"
               min="1"
               max={TOTAL_SPREADS}
+              disabled={mode === "list"}
               bind:value={currentSpread}
             />
           </label>
           <button
             class="disabled:opacity-35 border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-800"
             aria-label="Next spread"
-            disabled={currentSpread === TOTAL_SPREADS}
+            disabled={currentSpread === TOTAL_SPREADS || mode === "list"}
             onclick={() => setSpread(currentSpread + 1)}
           >
             <svg
@@ -549,29 +602,79 @@
       </div>
     </header>
 
-    <section class="min-h-0 min-w-0 flex-1">
-      <div class={`grid h-full gap-3 xl:grid-cols-2`}>
-        {#if rightPageSlots.length == 0 && !rightPageNumber}
+    {#if mode === "binder"}
+      <section class="min-h-0 min-w-0 flex-1">
+        <div class={`grid h-full gap-3 xl:grid-cols-2`}>
+          {#if rightPageSlots.length == 0 && !rightPageNumber}
+            {@render BinderPage({
+              pageNumber: 0,
+              slots: null,
+              onToggle: null,
+            })}
+          {/if}
           {@render BinderPage({
-            pageNumber: 0,
-            slots: null,
-            onToggle: null,
-          })}
-        {/if}
-        {@render BinderPage({
-          pageNumber: leftPageNumber,
-          slots: leftPageSlots,
-          onToggle: toggleCollected,
-        })}
-        {#if rightPageSlots.length > 0 && rightPageNumber}
-          {@render BinderPage({
-            pageNumber: rightPageNumber,
-            slots: rightPageSlots,
+            pageNumber: leftPageNumber,
+            slots: leftPageSlots,
             onToggle: toggleCollected,
           })}
+          {#if rightPageSlots.length > 0 && rightPageNumber}
+            {@render BinderPage({
+              pageNumber: rightPageNumber,
+              slots: rightPageSlots,
+              onToggle: toggleCollected,
+            })}
+          {/if}
+        </div>
+      </section>
+    {:else}
+      <section
+        class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-white/75 p-3 shadow-pocket ring-1 ring-slate-300 dark:bg-slate-800/75 dark:ring-slate-700"
+      >
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <h3 class="text-base font-black text-slate-950 dark:text-slate-50">
+            {query.trim()
+              ? `${filteredPokemon.length} match${filteredPokemon.length === 1 ? "" : "es"}`
+              : `All ${pokedex.count} Pokemon`}
+          </h3>
+        </div>
+
+        {#if filteredPokemon.length === 0}
+          <p
+            class="p-6 text-center text-sm font-bold text-slate-500 dark:text-slate-400"
+          >
+            No Pokemon match "{query}"
+          </p>
+        {:else}
+          <div
+            class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
+          >
+            {#each filteredPokemon as pokemon (pokemon.id)}
+              <button
+                class={`flex items-center gap-2 overflow-hidden border p-2 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 ${listCardStateClass(pokemon)}`}
+                aria-pressed={collectedIds.has(pokemon.id)}
+                onclick={() => toggleCollectedId(pokemon.id)}
+              >
+                <img
+                  src={`${SPRITE_DIRECTORY}${pokemon.id}.png`}
+                  class={`h-10 w-10 shrink-0 ${collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
+                  alt="pokemon sprite"
+                />
+                <div class="min-w-0">
+                  <span
+                    class="block text-[10px] font-black text-slate-500 dark:text-slate-400"
+                    >#{String(pokemon.id).padStart(4, "0")}</span
+                  >
+                  <span
+                    class="block truncate text-xs font-black text-slate-950 dark:text-slate-50"
+                    >{pokemon.name}</span
+                  >
+                </div>
+              </button>
+            {/each}
+          </div>
         {/if}
-      </div>
-    </section>
+      </section>
+    {/if}
   </section>
 </main>
 
