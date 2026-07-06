@@ -389,8 +389,8 @@
         currentSpread -= 1;
       }
 
-      // optional: clamp to prevent invalid values
       currentSpread = Math.max(1, currentSpread);
+      currentSpread = Math.min(currentSpread, TOTAL_SPREADS)
     }
   }
 
