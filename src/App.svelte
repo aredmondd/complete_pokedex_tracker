@@ -606,7 +606,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="lucide lucide-move-right-icon lucide-move-right"
+              class="lucide lucide-move-right-icon lucide-move-right hover:text-blue-500"
               ><path d="M18 8L22 12L18 16" /><path d="M2 12H22" /></svg
             >
           </button>
