@@ -88,6 +88,22 @@
     }
   });
 
+  // Whenever the highlighted pokemon changes while in list mode, scroll it
+  // into view. Runs in both modes harmlessly (no-ops when mode !== "list").
+  $effect(() => {
+    if (mode !== "list" || highlightedId === null) return;
+
+    const id = highlightedId; // capture for the microtask closure
+
+    queueMicrotask(() => {
+      if (typeof document === "undefined") return;
+
+      document
+        .querySelector(`[data-pokemon-id="${id}"]`)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+  });
+
   function loadInitialCollection() {
     if (typeof localStorage === "undefined") return new Set();
 
@@ -122,8 +138,22 @@
     theme = theme === "dark" ? "light" : "dark";
   }
 
+  function spreadForId(id) {
+    return id <= POCKETS_PER_PAGE
+      ? 1
+      : 2 + Math.floor((id - POCKETS_PER_PAGE - 1) / POCKETS_PER_SPREAD);
+  }
+
   function toggleMode() {
-    mode = mode === "binder" ? "list" : "binder";
+    const nextMode = mode === "binder" ? "list" : "binder";
+
+    // Carry the currently highlighted pokemon over into binder mode by
+    // jumping the spread to wherever it lives.
+    if (nextMode === "binder" && highlightedId !== null) {
+      currentSpread = spreadForId(highlightedId);
+    }
+
+    mode = nextMode;
   }
 
   function toggleHidden() {
@@ -184,10 +214,7 @@
     }
 
     highlightedId = parsed;
-    currentSpread =
-      parsed <= POCKETS_PER_PAGE
-        ? 1
-        : 2 + Math.floor((parsed - POCKETS_PER_PAGE - 1) / POCKETS_PER_SPREAD);
+    currentSpread = spreadForId(parsed);
   }
 
   function submitSearch() {
@@ -278,6 +305,15 @@
 
   function listCardStateClass(pokemon) {
     const collected = collectedIds.has(pokemon.id);
+    const highlighted = highlightedId === pokemon.id;
+
+    if (highlighted && collected) {
+      return "border-blue-500 border-4 bg-gray-200/80 opacity-70 dark:bg-slate-700/80 dark:border-blue-400";
+    }
+
+    if (highlighted) {
+      return "border-slate-300 bg-yellow-300/50 shadow-sm dark:border-slate-700";
+    }
 
     if (collected) {
       return "border-gray-300 bg-gray-200/80 opacity-70 dark:border-slate-600 dark:bg-slate-700/80";
@@ -399,24 +435,21 @@
 
     if (missingList.length === 0) return;
 
-    const randomPokemon =
+    const picked =
       missingList[Math.floor(Math.random() * missingList.length)];
 
-    highlightedId = randomPokemon.id;
+    // highlightedId is the single source of truth shared by both binder
+    // and list views — set it once and let each view react to it.
+    highlightedId = picked.id;
+
+    // Clear any active search/filter so the pick isn't hidden by it in
+    // list mode, and so binder-mode search jumps don't fight this pick.
+    query = "";
 
     if (mode === "binder") {
-      currentSpread =
-        randomPokemon.id <= POCKETS_PER_PAGE
-          ? 1
-          : 2 +
-            Math.floor(
-              (randomPokemon.id - POCKETS_PER_PAGE - 1) / POCKETS_PER_SPREAD,
-            );
+      currentSpread = spreadForId(picked.id);
     }
-
-    if (mode === "list") {
-      query = `#${randomPokemon.id}`;
-    }
+    // In list mode, the $effect above handles scrolling the card into view.
   }
 
   window.addEventListener("wheel", handleWheel, { passive: false });
@@ -813,6 +846,7 @@
           >
             {#each filteredPokemon as pokemon (pokemon.id)}
               <button
+                data-pokemon-id={pokemon.id}
                 class={`flex items-center gap-2 overflow-hidden border p-2 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 ${listCardStateClass(pokemon)}`}
                 aria-pressed={collectedIds.has(pokemon.id)}
                 onclick={() => toggleCollectedId(pokemon.id)}
