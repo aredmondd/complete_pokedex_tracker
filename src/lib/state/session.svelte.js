@@ -2,8 +2,6 @@ import pokedex from "../../data/pokemon.json";
 import {
   TOTAL_POCKETS,
   TOTAL_SPREADS,
-  POCKETS_PER_PAGE,
-  POCKETS_PER_SPREAD,
   SPRITE_DIRECTORY,
   SHINY_DIRECTORY,
 } from "../utils/constants.js";
