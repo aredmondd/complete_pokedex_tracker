@@ -388,13 +388,21 @@
   }
 
   function handleGlobalShortcuts(event) {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    const isSearchShortcut =
+      (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+
+    const isDeleteKey = event.key === "Delete" || event.key === "Backspace";
+
+    if (isSearchShortcut) {
       event.preventDefault();
-
       query = "";
-
       searchInput?.focus();
       searchInput?.select();
+      return;
+    }
+
+    if (isDeleteKey && document.activeElement !== searchInput) {
+      searchInput?.focus();
     }
   }
 
@@ -426,7 +434,7 @@
       }
 
       currentSpread = Math.max(1, currentSpread);
-      currentSpread = Math.min(currentSpread, TOTAL_SPREADS)
+      currentSpread = Math.min(currentSpread, TOTAL_SPREADS);
     }
   }
 
@@ -435,8 +443,7 @@
 
     if (missingList.length === 0) return;
 
-    const picked =
-      missingList[Math.floor(Math.random() * missingList.length)];
+    const picked = missingList[Math.floor(Math.random() * missingList.length)];
 
     // highlightedId is the single source of truth shared by both binder
     // and list views — set it once and let each view react to it.
@@ -934,3 +941,4 @@
 {/snippet}
 
 <svelte:window onkeydown={handleGlobalShortcuts} />
+
