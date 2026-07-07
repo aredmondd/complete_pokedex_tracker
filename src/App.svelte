@@ -388,7 +388,6 @@
   }
 
   function handleGlobalShortcuts(event) {
-    console.log("hey blanco the key you pressed is", event.key);
     const isSearchShortcut =
       (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
 
