@@ -3,7 +3,6 @@
     session,
     toggleHidden,
     toggleShiny,
-    randomPokemon,
   } from "../state/session.svelte.js";
   import {
     collection,
@@ -55,11 +54,7 @@
     });
   }
 
-  function handleRandom() {
-    randomPokemon();
-    close();
-  }
-</script>
+  </script>
 
 <IconButton onclick={show} title="Settings" ariaLabel="Settings">
   <Icon name="settings" />
@@ -67,7 +62,7 @@
 
 <dialog
   bind:this={dialog}
-  class="m-auto w-full max-w-sm rounded-lg border border-slate-300 bg-white p-0 shadow-xl backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800"
+  class="m-auto w-full max-w-sm rounded-lg border border-slate-300 bg-white p-0 shadow-xl backdrop:bg-slate-900/80 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
   onclick={handleBackdrop}
   onclose={() => (open = false)}
 >
@@ -121,7 +116,9 @@
         onclick={toggleHidden}
       >
         <Icon name={session.hidden ? "eye" : "eye-off"} />
-        {session.hidden ? "Show collected" : "Hide collected"}
+        {session.hidden
+          ? "Show collected (list view)"
+          : "Hide collected (list view)"}
       </button>
 
       <button
@@ -132,14 +129,6 @@
         {session.directory === SHINY_DIRECTORY
           ? "Normal sprites"
           : "Shiny sprites"}
-      </button>
-
-      <button
-        class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
-        onclick={handleRandom}
-      >
-        <Icon name="circle-question-mark" />
-        Random missing Pokémon
       </button>
 
       <button
