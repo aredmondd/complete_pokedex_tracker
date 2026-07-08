@@ -13,7 +13,7 @@
   >
     <Icon name="move-left" />
   </button>
-  <label class="min-w-[120px] max-w-[180px] flex-1">
+  <label class="min-w-[120px] flex-1">
     <span class="sr-only">Spread</span>
     <input
       class="w-full align-middle accent-red-600 disabled:opacity-35"
@@ -27,9 +27,11 @@
   <button
     class="disabled:opacity-35 border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-800"
     aria-label="Next spread"
-    disabled={session.currentSpread === TOTAL_SPREADS || session.mode === "list"}
+    disabled={session.currentSpread === TOTAL_SPREADS ||
+      session.mode === "list"}
     onclick={() => setSpread(session.currentSpread + 1)}
   >
     <Icon name="move-right" />
   </button>
 </div>
+

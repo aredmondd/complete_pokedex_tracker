@@ -16,7 +16,10 @@
     submitting = true;
 
     if (mode === "signin") {
-      const { error: signInError } = await signInWithEmail(email.trim(), password);
+      const { error: signInError } = await signInWithEmail(
+        email.trim(),
+        password,
+      );
       if (signInError) error = signInError.message;
     } else {
       const { data, error: signUpError } = await signUpWithEmail(
@@ -96,7 +99,9 @@
             type="password"
             required
             minlength="6"
-            autocomplete={mode === "signin" ? "current-password" : "new-password"}
+            autocomplete={mode === "signin"
+              ? "current-password"
+              : "new-password"}
             bind:value={password}
             class="rounded border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
           />
@@ -118,5 +123,14 @@
         </button>
       </form>
     </div>
+    <p class="text-sm text-center pt-4 italic">
+      Don't want to make an account? <br />Learn how to self host
+      <a
+        href="https://github.com/aredmondd/complete_pokedex_tracker"
+        target="_blank"
+        class="text-blue-400 underline">here</a
+      >
+    </p>
   </div>
 </main>
+

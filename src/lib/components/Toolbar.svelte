@@ -11,7 +11,6 @@
   import IconButton from "./IconButton.svelte";
   import StatBadge from "./StatBadge.svelte";
   import SearchBar from "./SearchBar.svelte";
-  import SpreadNav from "./SpreadNav.svelte";
   import SettingsModal from "./SettingsModal.svelte";
 </script>
 
@@ -52,7 +51,6 @@
     </button>
 
     <SearchBar />
-    <SpreadNav />
 
     <IconButton onclick={randomPokemon} title="Random missing Pokémon" ariaLabel="Random missing Pokémon">
       <Icon name="circle-question-mark" />

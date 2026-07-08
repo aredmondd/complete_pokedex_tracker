@@ -7,6 +7,7 @@
   import Toolbar from "./lib/components/Toolbar.svelte";
   import BinderView from "./lib/components/BinderView.svelte";
   import ListView from "./lib/components/ListView.svelte";
+  import SpreadNav from "./lib/components/SpreadNav.svelte";
   import AuthView from "./lib/components/AuthView.svelte";
 
   let didInit = false;
@@ -78,6 +79,7 @@
 
       {#if session.mode === "binder"}
         <BinderView />
+        <SpreadNav />
       {:else}
         <ListView />
       {/if}
