@@ -24,7 +24,7 @@
   let importInput = $state(null);
   let creditsOpen = $state(false);
   let creditsDialog = $state(null);
-  let tipsOpen = $state(true);
+  let tipsOpen = $state(false);
   let tipsDialog = $state(null);
 
   function show() {
@@ -222,8 +222,8 @@
       </button>
     </div>
 
-    <div class="min-h-[200px]">
-      <p>Blanco for the feature requests and QC/QA</p>
+    <div class="min-h-[200px] flex flex-col gap-1">
+      <p>Blanco for contributing</p>
       <p>
         Len Greski for the <a
           href="https://github.com/lgreski/pokemonData"
@@ -243,6 +243,13 @@
           href="https://lucide.dev/"
           target="_blank"
           class="text-blue-400 underline">Icons</a
+        >
+      </p>
+      <p class="mt-12">
+        View the code for this project <a
+          href="https://github.com/aredmondd/complete_pokedex_tracker"
+          target="_blank"
+          class="text-blue-400 underline">here</a
         >
       </p>
     </div>
