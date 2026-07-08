@@ -1,31 +1,12 @@
 <script>
   import pokedex from "../../data/pokemon.json";
-  import {
-    session,
-    toggleMode,
-    toggleHidden,
-    toggleShiny,
-    jumpToNextMissing,
-    randomPokemon,
-  } from "../state/session.svelte.js";
-  import {
-    collection,
-    exportCollection,
-    importCollection,
-  } from "../state/collection.svelte.js";
-  import { theme, toggleTheme } from "../state/theme.svelte.js";
-  import {
-    TOTAL_POCKETS,
-    POCKETS_PER_PAGE,
-    POCKETS_PER_SPREAD,
-  } from "../utils/constants.js";
+  import { session, toggleMode, jumpToNextMissing } from "../state/session.svelte.js";
+  import { collection } from "../state/collection.svelte.js";
   import Icon from "./Icon.svelte";
-  import IconButton from "./IconButton.svelte";
   import StatBadge from "./StatBadge.svelte";
   import SearchBar from "./SearchBar.svelte";
   import SpreadNav from "./SpreadNav.svelte";
-
-  let importInput = $state(null);
+  import SettingsModal from "./SettingsModal.svelte";
 </script>
 
 <header
@@ -60,40 +41,6 @@
     <SearchBar />
     <SpreadNav />
 
-    <IconButton onclick={() => exportCollection({
-      totalPockets: TOTAL_POCKETS,
-      pocketsPerPage: POCKETS_PER_PAGE,
-      pocketsPerSpread: POCKETS_PER_SPREAD,
-    })}><Icon name="download" class="" /></IconButton>
-
-    <IconButton onclick={() => importInput?.click()}><Icon name="upload" class="" /></IconButton>
-    <input
-      class="hidden"
-      bind:this={importInput}
-      type="file"
-      accept="application/json"
-      onchange={importCollection}
-    />
-
-    <IconButton ariaLabel="Toggle light and dark mode" onclick={toggleTheme}>
-      <Icon name={theme.current === "dark" ? "sun" : "moon"} class="" />
-    </IconButton>
-
-    <div class={session.mode === "binder" ? "opacity-35" : ""}>
-      <IconButton
-        onclick={toggleHidden}
-        title="Toggle Collected Pokemon (List View)"
-      >
-        <Icon name={session.hidden ? "eye" : "eye-off"} class="" />
-      </IconButton>
-    </div>
-
-    <IconButton onclick={toggleShiny} title="Toggle Shiny Versions">
-      <Icon name="sparkles" class="" />
-    </IconButton>
-
-    <IconButton onclick={randomPokemon} title="Random Pokemon you have not collected">
-      <Icon name="circle-question-mark" class="" />
-    </IconButton>
+    <SettingsModal />
   </div>
 </header>
