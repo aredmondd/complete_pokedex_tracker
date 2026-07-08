@@ -10,6 +10,7 @@
     "generate:data": "node scripts/generate-pokemon-data.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.1",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tailwindcss/vite": "^4.3.2",
     "svelte": "^5.0.0",
