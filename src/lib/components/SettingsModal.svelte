@@ -24,7 +24,7 @@
   let importInput = $state(null);
   let creditsOpen = $state(false);
   let creditsDialog = $state(null);
-  let tipsOpen = $state(false);
+  let tipsOpen = $state(true);
   let tipsDialog = $state(null);
 
   function show() {
@@ -267,6 +267,10 @@
       </button>
     </div>
 
-    <div class="min-h-[200px]"></div>
+    <div class="min-h-[200px]">
+      <p>1. Scrolling on binder view flips through pages</p>
+      <p>2. Pressing delete or backspace autofocuses the search bar</p>
+      <p>3. Command + K or Ctrl + K clears the search bar & focuses it</p>
+    </div>
   </div>
 </dialog>
