@@ -101,8 +101,7 @@
       pocketsPerSpread: POCKETS_PER_SPREAD,
     });
   }
-
-  </script>
+</script>
 
 <IconButton onclick={show} title="Settings" ariaLabel="Settings">
   <Icon name="settings" />
@@ -179,12 +178,12 @@
           : "Shiny sprites"}
       </button>
 
-<button
+      <button
         class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
         onclick={showCredits}
       >
         <Icon name="scroll" />
-        Credits
+        Credits & Thanks
       </button>
 
       <button
@@ -202,8 +201,8 @@
         <Icon name="log-out" />
         Sign out
       </button>
-     </div>
-   </div>
+    </div>
+  </div>
 </dialog>
 
 <dialog
@@ -214,7 +213,7 @@
 >
   <div class="p-4">
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-bold">Credits</h2>
+      <h2 class="text-lg font-bold">Credits & Thanks</h2>
       <button
         class="p-1 transition hover:text-red-600 dark:hover:text-red-400"
         onclick={closeCredits}
@@ -225,6 +224,28 @@
     </div>
 
     <div class="min-h-[200px]">
+      <p>Blanco for the feature requests and QC/QA</p>
+      <p>
+        Len Greski for the <a
+          href="https://github.com/lgreski/pokemonData"
+          target="_blank"
+          class="text-blue-400 underline">CSV data</a
+        >
+      </p>
+      <p>
+        PokeAPI's <a
+          href="https://github.com/PokeAPI/sprites"
+          target="_blank"
+          class="text-blue-400 underline">Sprite Repo</a
+        >
+      </p>
+      <p>
+        Lucide for the beautiful <a
+          href="https://lucide.dev/"
+          target="_blank"
+          class="text-blue-400 underline">Icons</a
+        >
+      </p>
     </div>
   </div>
 </dialog>
@@ -247,7 +268,6 @@
       </button>
     </div>
 
-    <div class="min-h-[200px]">
-    </div>
+    <div class="min-h-[200px]"></div>
   </div>
 </dialog>
