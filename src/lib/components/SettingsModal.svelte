@@ -5,7 +5,6 @@
     toggleShiny,
   } from "../state/session.svelte.js";
   import {
-    collection,
     exportCollection,
     importCollection,
   } from "../state/collection.svelte.js";
