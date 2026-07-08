@@ -1,22 +1,10 @@
 import pokedex from "../../data/pokemon.json";
-import { STORAGE_KEY, TOTAL_POCKETS } from "../utils/constants.js";
+import { TOTAL_POCKETS } from "../utils/constants.js";
 import { findNextMissing } from "../utils/filter.js";
+import { supabase } from "../supabase/client.js";
+import { auth } from "./auth.svelte.js";
 
-function loadInitialCollection() {
-  if (typeof localStorage === "undefined") return new Set();
-
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return new Set();
-
-  try {
-    const parsed = JSON.parse(saved);
-    return new Set(parsed.collectedIds ?? []);
-  } catch {
-    return new Set();
-  }
-}
-
-let collectedIds = $state(loadInitialCollection());
+let collectedIds = $state(new Set());
 
 const _collectedCount = $derived(collectedIds.size);
 const _progressPercent = $derived(
@@ -42,20 +30,107 @@ export const collection = {
   },
 };
 
-export function toggleCollectedId(id) {
-  const next = new Set(collectedIds);
+export async function loadCollection() {
+  const userId = auth.current?.id;
+  if (!userId) {
+    collectedIds = new Set();
+    return;
+  }
 
-  if (next.has(id)) {
+  const { data, error } = await supabase
+    .from("collected_pokemon")
+    .select("pokemon_id")
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Failed to load collection:", error.message);
+    return;
+  }
+
+  collectedIds = new Set(data.map((row) => row.pokemon_id));
+}
+
+export function reset() {
+  collectedIds = new Set();
+}
+
+export async function toggleCollectedId(id) {
+  const previous = collectedIds;
+  const next = new Set(previous);
+  const isCollected = next.has(id);
+
+  if (isCollected) {
     next.delete(id);
   } else {
     next.add(id);
   }
-
   collectedIds = next;
+
+  const userId = auth.current?.id;
+  if (!userId) return;
+
+  let error;
+  if (isCollected) {
+    ({ error } = await supabase
+      .from("collected_pokemon")
+      .delete()
+      .eq("user_id", userId)
+      .eq("pokemon_id", id));
+  } else {
+    const now = new Date().toISOString();
+    ({ error } = await supabase
+      .from("collected_pokemon")
+      .insert({ user_id: userId, pokemon_id: id, collected_at: now }));
+  }
+
+  if (error) {
+    console.error("Failed to toggle collected state:", error.message);
+    collectedIds = previous;
+  }
 }
 
-export function setCollectedIds(ids) {
-  collectedIds = new Set(ids);
+export async function setCollectedIds(ids) {
+  const userId = auth.current?.id;
+  if (!userId) {
+    collectedIds = new Set(ids);
+    return;
+  }
+
+  const previous = collectedIds;
+  const nextSet = new Set(ids);
+  collectedIds = nextSet;
+
+  const { error: delError } = await supabase
+    .from("collected_pokemon")
+    .delete()
+    .eq("user_id", userId);
+
+  if (delError) {
+    console.error(
+      "Failed to clear collection before import:",
+      delError.message,
+    );
+    collectedIds = previous;
+    return;
+  }
+
+  if (nextSet.size === 0) return;
+
+  const now = new Date().toISOString();
+  const rows = [...nextSet].map((pokemon_id) => ({
+    user_id: userId,
+    pokemon_id,
+    collected_at: now,
+  }));
+
+  const { error: insError } = await supabase
+    .from("collected_pokemon")
+    .insert(rows);
+
+  if (insError) {
+    console.error("Failed to import collection:", insError.message);
+    await loadCollection();
+  }
 }
 
 export function exportCollection({
@@ -84,35 +159,26 @@ export function exportCollection({
   URL.revokeObjectURL(url);
 }
 
-export function importCollection(event) {
+export async function importCollection(event) {
   const file = event.target.files?.[0];
 
   if (!file) return;
 
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    try {
-      const parsed = JSON.parse(String(reader.result));
-      const ids = Array.isArray(parsed.collectedIds) ? parsed.collectedIds : [];
-      collectedIds = new Set(
-        ids
-          .map(Number)
-          .filter(
-            (id) =>
-              Number.isInteger(id) && id >= 1 && id <= pokedex.count,
-          ),
-      );
-    } catch {
-      window.alert(
-        "That JSON file does not look like a Pokedex collection export.",
-      );
-    } finally {
-      event.target.value = "";
-    }
-  };
-
-  reader.readAsText(file);
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const ids = Array.isArray(parsed.collectedIds) ? parsed.collectedIds : [];
+    const valid = ids
+      .map(Number)
+      .filter((id) => Number.isInteger(id) && id >= 1 && id <= pokedex.count);
+    await setCollectedIds(valid);
+  } catch {
+    window.alert(
+      "That JSON file does not look like a Pokedex collection export.",
+    );
+  } finally {
+    event.target.value = "";
+  }
 }
 
 export { TOTAL_POCKETS };

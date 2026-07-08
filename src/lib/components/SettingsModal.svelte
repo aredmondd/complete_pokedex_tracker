@@ -11,6 +11,7 @@
     importCollection,
   } from "../state/collection.svelte.js";
   import { theme, toggleTheme } from "../state/theme.svelte.js";
+  import { signOut } from "../state/auth.svelte.js";
   import {
     TOTAL_POCKETS,
     POCKETS_PER_PAGE,
@@ -139,6 +140,14 @@
       >
         <Icon name="circle-question-mark" />
         Random missing Pokémon
+      </button>
+
+      <button
+        class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
+        onclick={signOut}
+      >
+        <Icon name="log-out" />
+        Sign out
       </button>
     </div>
   </div>
