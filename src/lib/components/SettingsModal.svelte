@@ -1,7 +1,6 @@
 <script>
   import {
     session,
-    toggleHidden,
     toggleShiny,
   } from "../state/session.svelte.js";
   import {
@@ -154,17 +153,6 @@
       >
         <Icon name={theme.current === "dark" ? "sun" : "moon"} />
         {theme.current === "dark" ? "Light mode" : "Dark mode"}
-      </button>
-
-      <button
-        class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 disabled:opacity-35 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
-        disabled={session.mode === "binder"}
-        onclick={toggleHidden}
-      >
-        <Icon name={session.hidden ? "eye" : "eye-off"} />
-        {session.hidden
-          ? "Show collected (list view)"
-          : "Hide collected (list view)"}
       </button>
 
       <button

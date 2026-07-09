@@ -6,5 +6,6 @@ export const TOTAL_SPREADS =
   1 + Math.ceil((TOTAL_POCKETS - POCKETS_PER_PAGE) / POCKETS_PER_SPREAD);
 export const STORAGE_KEY = "complete-pokedex.collection.v1";
 export const THEME_STORAGE_KEY = "complete-pokedex.theme.v1";
+export const FILTER_STORAGE_KEY = "complete-pokedex.filters.v1";
 export const SPRITE_DIRECTORY = "/sprites/pokemon/";
 export const SHINY_DIRECTORY = "/sprites/pokemon/shiny/";

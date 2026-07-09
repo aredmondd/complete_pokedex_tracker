@@ -9,12 +9,39 @@ import { computeSpreadSlots, spreadForId } from "../utils/slots.js";
 import { filterPokemon } from "../utils/filter.js";
 import { collection } from "./collection.svelte.js";
 
+export const ALL_GENERATIONS = Array.from(
+  new Set(pokedex.pokemon.map((pokemon) => pokemon.generation)),
+).sort((left, right) => left - right);
+
+export const ALL_TYPES = [
+  "Bug",
+  "Dark",
+  "Dragon",
+  "Electric",
+  "Fairy",
+  "Fighting",
+  "Fire",
+  "Flying",
+  "Ghost",
+  "Grass",
+  "Ground",
+  "Ice",
+  "Normal",
+  "Poison",
+  "Psychic",
+  "Rock",
+  "Steel",
+  "Water",
+];
+
 let currentSpread = $state(1);
 let highlightedId = $state(null);
 let query = $state("");
 let mode = $state("binder");
-let hidden = $state(true);
 let directory = $state(SPRITE_DIRECTORY);
+let selectedGenerations = $state(new Set(ALL_GENERATIONS));
+let selectedTypes = $state(new Set(ALL_TYPES));
+let collectedStatus = $state("all");
 
 let searchInputEl = $state(null);
 
@@ -43,14 +70,26 @@ export const session = {
   set mode(value) {
     mode = value;
   },
-  get hidden() {
-    return hidden;
-  },
-  set hidden(value) {
-    hidden = value;
-  },
   get directory() {
     return directory;
+  },
+  get selectedGenerations() {
+    return selectedGenerations;
+  },
+  set selectedGenerations(value) {
+    selectedGenerations = value;
+  },
+  get selectedTypes() {
+    return selectedTypes;
+  },
+  set selectedTypes(value) {
+    selectedTypes = value;
+  },
+  get collectedStatus() {
+    return collectedStatus;
+  },
+  set collectedStatus(value) {
+    collectedStatus = value;
   },
 };
 
@@ -58,12 +97,8 @@ export function setSearchInput(el) {
   searchInputEl = el;
 }
 
-function clampSpread(spread) {
-  return Math.min(TOTAL_SPREADS, Math.max(1, Number(spread) || 1));
-}
-
 export function setSpread(spread) {
-  currentSpread = clampSpread(spread);
+  currentSpread = Math.min(TOTAL_SPREADS, Math.max(1, Number(spread) || 1));
 }
 
 export function jumpToId(id) {
@@ -114,11 +149,6 @@ export function toggleMode() {
   }
 
   mode = nextMode;
-}
-
-export function toggleHidden() {
-  if (mode === "binder") return;
-  hidden = hidden === true ? false : true;
 }
 
 export function toggleShiny() {
@@ -200,15 +230,88 @@ export function handleGlobalShortcuts(event) {
   }
 }
 
+export function toggleGenerationFilter(generation) {
+  const next = new Set(selectedGenerations);
+
+  if (next.has(generation)) {
+    next.delete(generation);
+  } else {
+    next.add(generation);
+  }
+
+  selectedGenerations = next;
+}
+
+export function toggleTypeFilter(type) {
+  const next = new Set(selectedTypes);
+
+  if (next.has(type)) {
+    next.delete(type);
+  } else {
+    next.add(type);
+  }
+
+  selectedTypes = next;
+}
+
+export function resetFilters() {
+  selectedGenerations = new Set(ALL_GENERATIONS);
+  selectedTypes = new Set(ALL_TYPES);
+  collectedStatus = "all";
+}
+
+export function loadFilters(serialized) {
+  if (!serialized) return;
+
+  try {
+    const parsed = JSON.parse(serialized);
+
+    if (Array.isArray(parsed.generations)) {
+      selectedGenerations = new Set(
+        parsed.generations.filter((generation) =>
+          ALL_GENERATIONS.includes(generation),
+        ),
+      );
+    }
+
+    if (Array.isArray(parsed.types)) {
+      selectedTypes = new Set(
+        parsed.types.filter((type) => ALL_TYPES.includes(type)),
+      );
+    }
+
+    if (["all", "collected", "missing"].includes(parsed.status)) {
+      collectedStatus = parsed.status;
+    }
+  } catch {
+    // Ignore corrupted storage.
+  }
+}
+
+export function serializeFilters() {
+  return JSON.stringify({
+    generations: [...selectedGenerations].sort((left, right) => left - right),
+    types: [...selectedTypes].sort(),
+    status: collectedStatus,
+  });
+}
+
 const _spread = $derived(
   computeSpreadSlots(currentSpread, collection.collectedIds, highlightedId),
 );
 const _filteredPokemon = $derived(
   filterPokemon(query, {
     collectedIds: collection.collectedIds,
-    hidden,
     mode,
+    selectedGenerations,
+    selectedTypes,
+    collectedStatus,
   }),
+);
+const _filterCount = $derived(
+  Number(selectedGenerations.size !== ALL_GENERATIONS.length) +
+    Number(selectedTypes.size !== ALL_TYPES.length) +
+    Number(collectedStatus !== "all"),
 );
 
 Object.defineProperty(session, "spreadSlots", {
@@ -239,5 +342,10 @@ Object.defineProperty(session, "rightPageNumber", {
 Object.defineProperty(session, "filteredPokemon", {
   get() {
     return _filteredPokemon;
+  },
+});
+Object.defineProperty(session, "filterCount", {
+  get() {
+    return _filterCount;
   },
 });
