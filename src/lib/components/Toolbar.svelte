@@ -58,7 +58,7 @@
       </button>
     </div>
 
-    <div class="order-1 flex min-w-0 items-center gap-2 md:order-2">
+    <div class="order-1 flex min-w-0 items-center gap-2 md:flex-1 md:order-2">
       <SearchBar />
 
       <FilterModal />
