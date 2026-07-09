@@ -4,6 +4,7 @@
   import { auth, initAuth } from "./lib/state/auth.svelte.js";
   import { theme } from "./lib/state/theme.svelte.js";
   import { session, handleWheel, handleGlobalShortcuts, loadFilters, serializeFilters, initMobileDetection } from "./lib/state/session.svelte.js";
+
   import Toolbar from "./lib/components/Toolbar.svelte";
   import BinderView from "./lib/components/BinderView.svelte";
   import ListView from "./lib/components/ListView.svelte";
