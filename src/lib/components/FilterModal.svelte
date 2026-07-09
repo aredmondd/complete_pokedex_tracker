@@ -4,6 +4,7 @@
     toggleGenerationFilter,
     toggleTypeFilter,
     resetFilters,
+    clearFilters,
     ALL_GENERATIONS,
     ALL_TYPES,
   } from "../state/session.svelte.js";
@@ -71,6 +72,12 @@
           Clear all
         </button>
         <button
+          class="px-2 py-1 text-sm font-medium text-slate-600 transition hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400"
+          onclick={clearFilters}
+        >
+          None
+        </button>
+        <button
           class="p-1 transition hover:text-red-600 dark:hover:text-red-400"
           onclick={close}
           aria-label="Close filters"
@@ -88,7 +95,7 @@
         <div class="grid grid-cols-3 gap-2">
           {#each ["all", "collected", "missing"] as status}
             <button
-              class={`border px-2 py-1.5 text-sm font-bold transition ${
+              class={`border px-2 py-2 text-sm font-bold transition md:py-1.5 ${
                 session.collectedStatus === status
                   ? "border-red-600 bg-red-600 text-white dark:border-red-500 dark:bg-red-500"
                   : "border-slate-300 hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
@@ -105,10 +112,10 @@
         <h3 class="mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">
           Generations
         </h3>
-        <div class="grid grid-cols-5 gap-2">
+        <div class="grid grid-cols-4 gap-2 md:grid-cols-5">
           {#each ALL_GENERATIONS as generation}
             <label
-              class={`flex cursor-pointer items-center justify-center border p-2 text-sm font-bold transition ${
+              class={`flex cursor-pointer items-center justify-center border p-3 text-sm font-bold transition md:p-2 ${
                 session.selectedGenerations.has(generation)
                   ? "border-red-600 bg-red-600 text-white dark:border-red-500 dark:bg-red-500"
                   : "border-slate-300 text-slate-700 hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-red-400 dark:hover:text-red-400"
@@ -130,10 +137,10 @@
         <h3 class="mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">
           Types
         </h3>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 gap-2 md:grid-cols-3">
           {#each ALL_TYPES as type}
             <label
-              class={`flex cursor-pointer items-center justify-center border px-2 py-1.5 text-xs font-bold transition ${
+              class={`flex cursor-pointer items-center justify-center border px-2 py-2 text-xs font-bold transition md:py-1.5 ${
                 session.selectedTypes.has(type)
                   ? "border-red-600 bg-red-600 text-white dark:border-red-500 dark:bg-red-500"
                   : "border-slate-300 text-slate-700 hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-red-400 dark:hover:text-red-400"
