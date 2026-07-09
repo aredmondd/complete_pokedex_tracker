@@ -20,7 +20,7 @@
     <p
       class="p-6 text-center text-sm font-bold text-slate-500 dark:text-slate-400"
     >
-      No Pokemon match "{session.query}"
+      No Pokémon match your filters
     </p>
   {:else}
     <div

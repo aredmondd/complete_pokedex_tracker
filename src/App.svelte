@@ -1,9 +1,9 @@
 <script>
-  import { THEME_STORAGE_KEY } from "./lib/utils/constants.js";
+  import { THEME_STORAGE_KEY, FILTER_STORAGE_KEY } from "./lib/utils/constants.js";
   import { collection, loadCollection, reset } from "./lib/state/collection.svelte.js";
   import { auth, initAuth } from "./lib/state/auth.svelte.js";
   import { theme } from "./lib/state/theme.svelte.js";
-  import { session, handleWheel, handleGlobalShortcuts } from "./lib/state/session.svelte.js";
+  import { session, handleWheel, handleGlobalShortcuts, loadFilters, serializeFilters } from "./lib/state/session.svelte.js";
   import Toolbar from "./lib/components/Toolbar.svelte";
   import BinderView from "./lib/components/BinderView.svelte";
   import ListView from "./lib/components/ListView.svelte";
@@ -35,6 +35,21 @@
     if (typeof localStorage !== "undefined") {
       localStorage.setItem(THEME_STORAGE_KEY, theme.current);
     }
+  });
+
+  $effect(() => {
+    if (typeof localStorage === "undefined") return;
+    loadFilters(localStorage.getItem(FILTER_STORAGE_KEY));
+  });
+
+  $effect(() => {
+    if (typeof localStorage === "undefined") return;
+
+    session.selectedGenerations;
+    session.selectedTypes;
+    session.collectedStatus;
+
+    localStorage.setItem(FILTER_STORAGE_KEY, serializeFilters());
   });
 
   $effect(() => {

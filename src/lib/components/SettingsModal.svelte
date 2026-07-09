@@ -1,7 +1,6 @@
 <script>
   import {
     session,
-    toggleHidden,
     toggleShiny,
   } from "../state/session.svelte.js";
   import {
@@ -157,17 +156,6 @@
       </button>
 
       <button
-        class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 disabled:opacity-35 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
-        disabled={session.mode === "binder"}
-        onclick={toggleHidden}
-      >
-        <Icon name={session.hidden ? "eye" : "eye-off"} />
-        {session.hidden
-          ? "Show collected (list view)"
-          : "Hide collected (list view)"}
-      </button>
-
-      <button
         class="flex items-center gap-3 border border-slate-300 px-3 py-2 text-left font-medium transition hover:border-red-500 hover:text-red-700 dark:border-slate-700 dark:hover:border-red-400 dark:hover:text-red-400"
         onclick={toggleShiny}
       >
@@ -222,8 +210,8 @@
       </button>
     </div>
 
-    <div class="min-h-[200px]">
-      <p>Blanco for the feature requests and QC/QA</p>
+    <div class="min-h-[200px] flex flex-col gap-1">
+      <p>Blanco for contributing</p>
       <p>
         Len Greski for the <a
           href="https://github.com/lgreski/pokemonData"
@@ -243,6 +231,13 @@
           href="https://lucide.dev/"
           target="_blank"
           class="text-blue-400 underline">Icons</a
+        >
+      </p>
+      <p class="mt-12">
+        View the code for this project <a
+          href="https://github.com/aredmondd/complete_pokedex_tracker"
+          target="_blank"
+          class="text-blue-400 underline">here</a
         >
       </p>
     </div>
@@ -267,6 +262,10 @@
       </button>
     </div>
 
-    <div class="min-h-[200px]"></div>
+    <div class="min-h-[200px]">
+      <p>1. Scrolling on binder view flips through pages</p>
+      <p>2. Pressing delete or backspace autofocuses the search bar</p>
+      <p>3. Command + K or Ctrl + K clears the search bar & focuses it</p>
+    </div>
   </div>
 </dialog>

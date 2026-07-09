@@ -1,6 +1,9 @@
 import pokedex from "../../data/pokemon.json";
 
-export function filterPokemon(rawQuery, { collectedIds, hidden, mode }) {
+export function filterPokemon(
+  rawQuery,
+  { collectedIds, mode, selectedGenerations, selectedTypes, collectedStatus },
+) {
   const trimmed = rawQuery.trim().toLowerCase();
   const numericQuery = Number(trimmed.replace(/^#/, ""));
 
@@ -9,20 +12,35 @@ export function filterPokemon(rawQuery, { collectedIds, hidden, mode }) {
   return pokedex.pokemon.filter((pokemon) => {
     const isCollected = collectedIds.has(pokemon.id);
 
-    const hiddenRule = !(hidden && mode === "list" && isCollected);
+    if (mode === "list") {
+      if (!selectedGenerations.has(pokemon.generation)) {
+        return false;
+      }
+
+      const hasSelectedType = pokemon.types.some((type) =>
+        selectedTypes.has(type),
+      );
+      if (!hasSelectedType) {
+        return false;
+      }
+
+      if (collectedStatus === "collected" && !isCollected) {
+        return false;
+      }
+
+      if (collectedStatus === "missing" && isCollected) {
+        return false;
+      }
+    }
 
     if (isNumericQuery) {
       return (
-        (pokemon.id === numericQuery ||
-          pokemon.name.toLowerCase().includes(trimmed)) &&
-        hiddenRule
+        pokemon.id === numericQuery ||
+        pokemon.name.toLowerCase().includes(trimmed)
       );
     }
 
-    const matchesSearch =
-      !trimmed || pokemon.name.toLowerCase().includes(trimmed);
-
-    return matchesSearch && hiddenRule;
+    return !trimmed || pokemon.name.toLowerCase().includes(trimmed);
   });
 }
 
