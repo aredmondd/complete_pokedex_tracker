@@ -24,12 +24,12 @@
     </p>
   {:else}
     <div
-      class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6"
+      class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 md:gap-2 lg:grid-cols-6 xl:grid-cols-6"
     >
       {#each session.filteredPokemon as pokemon (pokemon.id)}
         <button
           data-pokemon-id={pokemon.id}
-          class={`flex items-center gap-2 overflow-hidden border p-2 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 ${listCardStateClass(pokemon, {
+          class={`flex items-center gap-1.5 overflow-hidden border p-1.5 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 md:gap-2 md:p-2 ${listCardStateClass(pokemon, {
             collectedIds: collection.collectedIds,
             highlightedId: session.highlightedId,
           })}`}
@@ -38,16 +38,16 @@
         >
           <img
             src={`${session.directory}${pokemon.id}.png`}
-            class={`h-14 w-14 shrink-0 ${collection.collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
+            class={`h-10 w-10 shrink-0 md:h-14 md:w-14 ${collection.collectedIds.has(pokemon.id) ? "grayscale blur-[1px]" : ""}`}
             alt="pokemon sprite"
           />
           <div class="min-w-0">
             <span
-              class="block text-[12px] font-black text-slate-500 dark:text-slate-400"
+              class="block text-[10px] font-black text-slate-500 dark:text-slate-400 md:text-[12px]"
               >#{String(pokemon.id).padStart(4, "0")}</span
             >
             <span
-              class="block truncate text-lg font-black text-slate-950 dark:text-slate-50"
+              class="block truncate text-sm font-black text-slate-950 md:text-lg dark:text-slate-50"
               >{pokemon.name}</span
             >
           </div>

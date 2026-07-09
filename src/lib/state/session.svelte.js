@@ -42,6 +42,7 @@ let directory = $state(SPRITE_DIRECTORY);
 let selectedGenerations = $state(new Set(ALL_GENERATIONS));
 let selectedTypes = $state(new Set(ALL_TYPES));
 let collectedStatus = $state("all");
+let isMobile = $state(false);
 
 let searchInputEl = $state(null);
 
@@ -91,7 +92,27 @@ export const session = {
   set collectedStatus(value) {
     collectedStatus = value;
   },
+  get isMobile() {
+    return isMobile;
+  },
 };
+
+export function initMobileDetection() {
+  if (typeof window === "undefined") return;
+
+  const media = window.matchMedia("(max-width: 767px)");
+
+  function update() {
+    isMobile = media.matches;
+
+    if (isMobile && mode !== "list") {
+      mode = "list";
+    }
+  }
+
+  update();
+  media.addEventListener("change", update);
+}
 
 export function setSearchInput(el) {
   searchInputEl = el;
@@ -158,10 +179,16 @@ export function toggleShiny() {
 
 export function jumpToNextMissing() {
   const missing = collection.nextMissing;
-  if (missing) {
-    mode = "binder";
-    jumpToId(missing.id);
+  if (!missing) return;
+
+  if (isMobile) {
+    highlightedId = missing.id;
+    query = "";
+    return;
   }
+
+  mode = "binder";
+  jumpToId(missing.id);
 }
 
 export function randomPokemon() {
@@ -239,6 +266,10 @@ export function toggleGenerationFilter(generation) {
     next.add(generation);
   }
 
+  if (selectedGenerations.size === 0 && selectedTypes.size === 0) {
+    selectedTypes = new Set(ALL_TYPES);
+  }
+
   selectedGenerations = next;
 }
 
@@ -251,12 +282,22 @@ export function toggleTypeFilter(type) {
     next.add(type);
   }
 
+  if (selectedGenerations.size === 0 && selectedTypes.size === 0) {
+    selectedGenerations = new Set(ALL_GENERATIONS);
+  }
+
   selectedTypes = next;
 }
 
 export function resetFilters() {
   selectedGenerations = new Set(ALL_GENERATIONS);
   selectedTypes = new Set(ALL_TYPES);
+  collectedStatus = "all";
+}
+
+export function clearFilters() {
+  selectedGenerations = new Set();
+  selectedTypes = new Set();
   collectedStatus = "all";
 }
 
