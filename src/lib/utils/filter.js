@@ -32,27 +32,46 @@ const ALL_TYPES = [
   "Water",
 ];
 
+function parseNumericQuery(trimmed) {
+  if (trimmed.length === 0) return null;
+
+  const first = trimmed.charCodeAt(0);
+  const maybeNumber =
+    first === 35 || (first >= 48 && first <= 57);
+  if (!maybeNumber) return null;
+
+  const numericPart = first === 35 ? trimmed.slice(1) : trimmed;
+  if (numericPart.length === 0) return null;
+
+  const value = Number(numericPart);
+  if (Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  return null;
+}
+
 export function filterPokemon(
   rawQuery,
   { collectedIds, mode, selectedGenerations, selectedTypes, collectedStatus },
 ) {
-  const trimmed = rawQuery.trim().toLowerCase();
-  const numericQuery = Number(trimmed.replace(/^#/, ""));
-
-  const isNumericQuery = Number.isInteger(numericQuery) && numericQuery > 0;
+  const trimmed = rawQuery.trim();
+  const lower = trimmed.toLowerCase();
+  const numericQuery = parseNumericQuery(trimmed);
+  const isNumericQuery = numericQuery !== null;
   const hasActiveListFilters =
     mode === "list" &&
     (selectedGenerations.size !== ALL_GENERATIONS.length ||
       selectedTypes.size !== ALL_TYPES.length ||
       collectedStatus !== "all");
 
-  if (!trimmed && !hasActiveListFilters) {
+  if (!lower && !hasActiveListFilters) {
     return pokemon;
   }
 
-  return searchIndex.filter((pokemon) => {
-    const isCollected = collectedIds.has(pokemon.id);
+  const needsCollectedCheck = mode === "list" && collectedStatus !== "all";
 
+  return searchIndex.filter((pokemon) => {
     if (mode === "list") {
       if (!selectedGenerations.has(pokemon.generation)) {
         return false;
@@ -65,22 +84,22 @@ export function filterPokemon(
         return false;
       }
 
-      if (collectedStatus === "collected" && !isCollected) {
-        return false;
-      }
-
-      if (collectedStatus === "missing" && isCollected) {
-        return false;
+      if (needsCollectedCheck) {
+        const isCollected = collectedIds.has(pokemon.id);
+        if (collectedStatus === "collected" && !isCollected) {
+          return false;
+        }
+        if (collectedStatus === "missing" && isCollected) {
+          return false;
+        }
       }
     }
 
-    if (isNumericQuery) {
-      return (
-        pokemon.id === numericQuery || pokemon.lowerName.includes(trimmed)
-      );
+    if (isNumericQuery && pokemon.id === numericQuery) {
+      return true;
     }
 
-    return pokemon.lowerName.includes(trimmed);
+    return pokemon.lowerName.includes(lower);
   });
 }
 

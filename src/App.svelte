@@ -13,7 +13,6 @@
 
   let didInit = false;
   let searchDebounceTimer = null;
-  let searchDebounceCooldown = false;
 
   $effect(() => {
     if (didInit) return;
@@ -72,21 +71,15 @@
 
   $effect(() => {
     const current = session.query;
-
-    if (!searchDebounceCooldown) {
-      session.filterQuery = current;
-    }
+    const delay = session.isMobile ? 120 : 60;
 
     clearTimeout(searchDebounceTimer);
-    searchDebounceCooldown = true;
 
     searchDebounceTimer = setTimeout(() => {
-      searchDebounceCooldown = false;
-
       if (session.filterQuery !== current) {
         session.filterQuery = current;
       }
-    }, 50);
+    }, delay);
 
     return () => clearTimeout(searchDebounceTimer);
   });

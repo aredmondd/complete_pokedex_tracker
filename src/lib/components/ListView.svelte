@@ -4,7 +4,7 @@
   import { collection, toggleCollectedId } from "../state/collection.svelte.js";
   import { listCardStateClass } from "../utils/card-class.js";
 
-  const LIST_LIMIT = 100;
+  let LIST_LIMIT = $derived(session.isMobile ? 50 : 100);
 
   let displayedPokemon = $derived(session.filteredPokemon.slice(0, LIST_LIMIT));
   let hasMore = $derived(session.filteredPokemon.length > LIST_LIMIT);
@@ -38,6 +38,7 @@
             collectedIds: collection.collectedIds,
             highlightedId: session.highlightedId,
           })}`}
+          style="contain: layout style paint;"
           aria-pressed={collection.collectedIds.has(pokemon.id)}
           onclick={() => toggleCollectedId(pokemon.id)}
         >
