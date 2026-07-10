@@ -12,6 +12,8 @@
   import AuthView from "./lib/components/AuthView.svelte";
 
   let didInit = false;
+  let searchDebounceTimer = null;
+  let searchDebounceCooldown = false;
 
   $effect(() => {
     if (didInit) return;
@@ -66,6 +68,27 @@
         .querySelector(`[data-pokemon-id="${id}"]`)
         ?.scrollIntoView({ block: "center", behavior: "smooth" });
     });
+  });
+
+  $effect(() => {
+    const current = session.query;
+
+    if (!searchDebounceCooldown) {
+      session.filterQuery = current;
+    }
+
+    clearTimeout(searchDebounceTimer);
+    searchDebounceCooldown = true;
+
+    searchDebounceTimer = setTimeout(() => {
+      searchDebounceCooldown = false;
+
+      if (session.filterQuery !== current) {
+        session.filterQuery = current;
+      }
+    }, 50);
+
+    return () => clearTimeout(searchDebounceTimer);
   });
 
   if (typeof window !== "undefined") {
