@@ -3,6 +3,11 @@
   import { session } from "../state/session.svelte.js";
   import { collection, toggleCollectedId } from "../state/collection.svelte.js";
   import { listCardStateClass } from "../utils/card-class.js";
+
+  const LIST_LIMIT = 100;
+
+  let displayedPokemon = $derived(session.filteredPokemon.slice(0, LIST_LIMIT));
+  let hasMore = $derived(session.filteredPokemon.length > LIST_LIMIT);
 </script>
 
 <section
@@ -26,7 +31,7 @@
     <div
       class="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 md:gap-2 lg:grid-cols-6 xl:grid-cols-6"
     >
-      {#each session.filteredPokemon as pokemon (pokemon.id)}
+      {#each displayedPokemon as pokemon (pokemon.id)}
         <button
           data-pokemon-id={pokemon.id}
           class={`flex items-center gap-1.5 overflow-hidden border p-1.5 text-left transition focus:outline-none focus:ring-2 focus:ring-red-600 md:gap-2 md:p-2 ${listCardStateClass(pokemon, {
@@ -56,5 +61,14 @@
         </button>
       {/each}
     </div>
+
+    {#if hasMore}
+      <p
+        class="p-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400"
+      >
+        Showing the first {LIST_LIMIT} of {session.filteredPokemon.length} Pokémon.
+        Type more to narrow results.
+      </p>
+    {/if}
   {/if}
 </section>
