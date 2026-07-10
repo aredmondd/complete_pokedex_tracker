@@ -37,7 +37,32 @@ export const ALL_TYPES = [
 let currentSpread = $state(1);
 let highlightedId = $state(null);
 let query = $state("");
+let filterQuery = $state("");
 let mode = $state("binder");
+
+let searchDebounceTimer = null;
+let searchDebounceCooldown = false;
+
+$effect(() => {
+  const current = query;
+
+  if (!searchDebounceCooldown) {
+    filterQuery = current;
+  }
+
+  clearTimeout(searchDebounceTimer);
+  searchDebounceCooldown = true;
+
+  searchDebounceTimer = setTimeout(() => {
+    searchDebounceCooldown = false;
+
+    if (filterQuery !== current) {
+      filterQuery = current;
+    }
+  }, 50);
+
+  return () => clearTimeout(searchDebounceTimer);
+});
 let directory = $state(SPRITE_DIRECTORY);
 let selectedGenerations = $state(new Set(ALL_GENERATIONS));
 let selectedTypes = $state(new Set(ALL_TYPES));
@@ -64,6 +89,9 @@ export const session = {
   },
   set query(value) {
     query = value;
+  },
+  get filterQuery() {
+    return filterQuery;
   },
   get mode() {
     return mode;
@@ -341,7 +369,7 @@ const _spread = $derived(
   computeSpreadSlots(currentSpread, collection.collectedIds, highlightedId),
 );
 const _filteredPokemon = $derived(
-  filterPokemon(query, {
+  filterPokemon(filterQuery, {
     collectedIds: collection.collectedIds,
     mode,
     selectedGenerations,
