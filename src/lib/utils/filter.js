@@ -1,5 +1,37 @@
 import pokedex from "../../data/pokemon.json";
 
+const pokemon = pokedex.pokemon;
+
+const searchIndex = pokemon.map((pokemon) => ({
+  ...pokemon,
+  lowerName: pokemon.name.toLowerCase(),
+}));
+
+const ALL_GENERATIONS = Array.from(
+  new Set(pokemon.map((pokemon) => pokemon.generation)),
+).sort((left, right) => left - right);
+
+const ALL_TYPES = [
+  "Bug",
+  "Dark",
+  "Dragon",
+  "Electric",
+  "Fairy",
+  "Fighting",
+  "Fire",
+  "Flying",
+  "Ghost",
+  "Grass",
+  "Ground",
+  "Ice",
+  "Normal",
+  "Poison",
+  "Psychic",
+  "Rock",
+  "Steel",
+  "Water",
+];
+
 export function filterPokemon(
   rawQuery,
   { collectedIds, mode, selectedGenerations, selectedTypes, collectedStatus },
@@ -8,8 +40,17 @@ export function filterPokemon(
   const numericQuery = Number(trimmed.replace(/^#/, ""));
 
   const isNumericQuery = Number.isInteger(numericQuery) && numericQuery > 0;
+  const hasActiveListFilters =
+    mode === "list" &&
+    (selectedGenerations.size !== ALL_GENERATIONS.length ||
+      selectedTypes.size !== ALL_TYPES.length ||
+      collectedStatus !== "all");
 
-  return pokedex.pokemon.filter((pokemon) => {
+  if (!trimmed && !hasActiveListFilters) {
+    return pokemon;
+  }
+
+  return searchIndex.filter((pokemon) => {
     const isCollected = collectedIds.has(pokemon.id);
 
     if (mode === "list") {
@@ -35,12 +76,11 @@ export function filterPokemon(
 
     if (isNumericQuery) {
       return (
-        pokemon.id === numericQuery ||
-        pokemon.name.toLowerCase().includes(trimmed)
+        pokemon.id === numericQuery || pokemon.lowerName.includes(trimmed)
       );
     }
 
-    return !trimmed || pokemon.name.toLowerCase().includes(trimmed);
+    return pokemon.lowerName.includes(trimmed);
   });
 }
 
