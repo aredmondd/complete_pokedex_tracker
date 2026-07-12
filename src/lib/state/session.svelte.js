@@ -112,7 +112,7 @@ export function initMobileDetection() {
   function update() {
     isMobile = media.matches;
 
-    if (isMobile && mode !== "list") {
+    if (isMobile && mode !== "list" && mode !== "compare") {
       mode = "list";
     }
   }
@@ -170,6 +170,11 @@ export function submitSearch() {
 }
 
 export function toggleMode() {
+  if (mode === "compare") {
+    mode = "list";
+    return;
+  }
+
   const nextMode = mode === "binder" ? "list" : "binder";
 
   if (nextMode === "binder" && highlightedId !== null) {
@@ -177,6 +182,15 @@ export function toggleMode() {
   }
 
   mode = nextMode;
+}
+
+export function toggleCompareMode() {
+  if (mode === "compare") {
+    mode = "list";
+    return;
+  }
+
+  mode = "compare";
 }
 
 export function toggleShiny() {

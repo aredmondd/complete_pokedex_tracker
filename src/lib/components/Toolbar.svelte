@@ -3,6 +3,7 @@
   import {
     session,
     toggleMode,
+    toggleCompareMode,
     jumpToNextMissing,
     randomPokemon,
   } from "../state/session.svelte.js";
@@ -27,6 +28,15 @@
           <Icon name={session.mode === "list" ? "book-open" : "list"} class="" />
         </button>
       {/if}
+
+      <button
+        class={`h-11 shrink-0 border p-2 md:h-10 ${session.mode === "compare" ? "border-red-500 text-red-700 dark:border-red-400 dark:text-red-400" : "border-slate-300 dark:border-slate-700 dark:bg-slate-800"}`}
+        onclick={toggleCompareMode}
+        aria-label="Toggle compare view"
+        title="Compare collections"
+      >
+        <Icon name="compare" class="" />
+      </button>
 
       <StatBadge
         label="Collected"

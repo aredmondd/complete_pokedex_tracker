@@ -8,6 +8,7 @@
   import Toolbar from "./lib/components/Toolbar.svelte";
   import BinderView from "./lib/components/BinderView.svelte";
   import ListView from "./lib/components/ListView.svelte";
+  import CompareView from "./lib/components/CompareView.svelte";
   import SpreadNav from "./lib/components/SpreadNav.svelte";
   import AuthView from "./lib/components/AuthView.svelte";
 
@@ -113,6 +114,8 @@
       {#if session.mode === "binder"}
         <BinderView />
         <SpreadNav />
+      {:else if session.mode === "compare"}
+        <CompareView />
       {:else}
         <ListView />
       {/if}
