@@ -2,6 +2,7 @@ import pokedex from "../../data/pokemon.json";
 import { supabase } from "../supabase/client.js";
 import { auth } from "./auth.svelte.js";
 import { collection } from "./collection.svelte.js";
+import { session } from "./session.svelte.js";
 
 let users = $state([]);
 let usersLoading = $state(false);
@@ -12,11 +13,26 @@ let otherCollectedIds = $state(new Set());
 let collectionLoading = $state(false);
 let collectionError = $state(null);
 
+function matchesCompareQuery(pokemon, rawQuery) {
+  const trimmed = rawQuery.trim();
+  if (!trimmed) return true;
+
+  const lower = trimmed.toLowerCase();
+  const numeric = Number(trimmed.replace(/^#/, ""));
+
+  if (Number.isInteger(numeric) && numeric > 0 && pokemon.id === numeric) {
+    return true;
+  }
+
+  return pokemon.name.toLowerCase().includes(lower);
+}
+
 const _bothMissing = $derived(
   pokedex.pokemon.filter(
     (pokemon) =>
       !collection.collectedIds.has(pokemon.id) &&
-      !otherCollectedIds.has(pokemon.id),
+      !otherCollectedIds.has(pokemon.id) &&
+      matchesCompareQuery(pokemon, session.filterQuery),
   ),
 );
 
@@ -24,7 +40,8 @@ const _onlyMine = $derived(
   pokedex.pokemon.filter(
     (pokemon) =>
       collection.collectedIds.has(pokemon.id) &&
-      !otherCollectedIds.has(pokemon.id),
+      !otherCollectedIds.has(pokemon.id) &&
+      matchesCompareQuery(pokemon, session.filterQuery),
   ),
 );
 
@@ -32,7 +49,8 @@ const _onlyTheirs = $derived(
   pokedex.pokemon.filter(
     (pokemon) =>
       !collection.collectedIds.has(pokemon.id) &&
-      otherCollectedIds.has(pokemon.id),
+      otherCollectedIds.has(pokemon.id) &&
+      matchesCompareQuery(pokemon, session.filterQuery),
   ),
 );
 
@@ -40,7 +58,8 @@ const _bothHave = $derived(
   pokedex.pokemon.filter(
     (pokemon) =>
       collection.collectedIds.has(pokemon.id) &&
-      otherCollectedIds.has(pokemon.id),
+      otherCollectedIds.has(pokemon.id) &&
+      matchesCompareQuery(pokemon, session.filterQuery),
   ),
 );
 
