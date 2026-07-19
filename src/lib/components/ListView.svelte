@@ -1,5 +1,4 @@
 <script>
-  import pokedex from "../../data/pokemon.json";
   import { session } from "../state/session.svelte.js";
   import { collection, toggleCollectedId } from "../state/collection.svelte.js";
   import { listCardStateClass } from "../utils/card-class.js";
@@ -15,9 +14,7 @@
 >
   <div class="mb-2 flex items-center justify-between gap-3">
     <h3 class="text-base font-black text-slate-950 dark:text-slate-50">
-      {session.filterQuery.trim()
-        ? `${session.filteredPokemon.length} match${session.filteredPokemon.length === 1 ? "" : "es"}`
-        : `All ${pokedex.count} Pokemon`}
+      {session.filteredPokemon.length} result{session.filteredPokemon.length === 1 ? "" : "s"}
     </h3>
   </div>
 
